@@ -21,4 +21,4 @@ supabase/        Esquema SQL y datos iniciales de rondas
 
 ## Pendientes antes de programar la calificación
 
-Ver la sección 14 de `docs/especificacion.md`.
+Ver la sección 15 de `docs/especificacion.md`. Las decisiones ya confirmadas están en la sección 14.

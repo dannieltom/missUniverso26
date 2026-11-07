@@ -20,24 +20,26 @@ Cada ronda es independiente: tiene sus criterios, su grupo de candidatas, su ran
 **R2. Competencia preliminar**
 - Subsección **Traje de baño:** pasarela y puntaje de 1.0 a 10.0.
 - Subsección **Traje de gala (vestido de noche):** pasarela y vestido, de 1.0 a 10.0.
-- Subsección **Entrevista con el jurado:** criterio por confirmar.
+- La entrevista con el jurado no se califica en la app.
 - Todas las candidatas. Sin tops oficiales en esta ronda.
-- Su ranking define a las semifinalistas predichas. El sistema genera automáticamente el top N según el puntaje (N configurable, por ejemplo 10, 20 o 30).
+- Su ranking define a las semifinalistas predichas. El sistema genera automáticamente el top N según el puntaje. N es editable por el administrador, porque la lista oficial aún no se conoce.
 
 **R3. Noche final, parte 1 (semifinalistas)**
-- Al anunciar las semifinalistas, el administrador carga el grupo oficial.
+- Al anunciar las semifinalistas, el administrador carga el grupo oficial. La cantidad de semifinalistas es editable.
 - El grupo de la ronda pasa a ser el oficial. Mientras no se haya cargado, el grupo es el de tus picks.
 - Subsecciones: traje de baño y vestido de noche, con puntaje de 1.0 a 10.0.
 - Compara tus semifinalistas predichas con las oficiales y muestra aciertos.
 
 **R4. Noche final, parte 2 (Top 5)**
-- Al anunciar el Top 5, el administrador carga el grupo oficial. Reemplaza el top 5 que tú habías elegido.
+- Al anunciar el Top 5, el administrador carga el grupo oficial. Reemplaza el top 5 que tú habías elegido. La cantidad de candidatas del corte también es editable.
 - Sobre ese grupo oficial se califican las preguntas y la oratoria. La oratoria solo existe en esta parte.
 - Compara tus picks de Top 5 con los oficiales.
 
 **R5. Ganadora**
 - Pick de la ganadora. Suma puntos si acierta.
-- Ranking final de la partida según aciertos y puntos de todas las rondas de noche final.
+- La ganadora se decide solo con las rondas de noche final (R3 y R4). La preliminar no cuenta para la ganadora.
+- Ranking final de la partida según aciertos y puntos de R3, R4 y R5.
+- Las demás rondas sirven para jugar y comparar: aciertos y puntaje por candidata.
 
 ## 4. Reglas de grupo oficial
 - Cada ronda tiene un **grupo activo**. Si el oficial está cargado, el grupo activo es ese. Si no, es el predicho (o el total, en R1).
@@ -55,7 +57,7 @@ Cada ronda es independiente: tiene sus criterios, su grupo de candidatas, su ran
 - Por candidata, ronda, subsección y criterio.
 - Editable hasta que se cierre la ronda.
 - Flujo rápido: calificar, guardar, siguiente, sin recargar.
-- Puntaje de subsección = promedio de sus criterios (por confirmar si hay pesos).
+- Puntaje de subsección = promedio simple de sus criterios. No hay pesos.
 
 ## 7. Picks
 - Se generan automáticamente desde tu ranking de la ronda anterior (semifinalistas desde R2, Top 5 desde R3).
@@ -94,10 +96,13 @@ Ver `supabase/schema.sql`.
 - **Identidad:** token anónimo en el navegador y código de recuperación, sin login.
 - **Alternativa académica:** Node.js con Express o Fastify, PostgreSQL y Socket.IO.
 
-## 14. Pendientes
-- Nombres exactos de las subsecciones y criterios, con pesos si los hay.
-- Qué criterio es la entrevista con el jurado y si entra en el puntaje de la preliminar.
-- N de semifinalistas (10, 20 o 30) y la cantidad de candidatas del Top 5 oficial.
-- Si los picks dan puntos (propuesta: sí).
+## 14. Decisiones confirmadas
+- Subsecciones y criterios: Traje de baño (pasarela, puntaje general), Traje de gala (pasarela, vestido), desfile de traje típico (puntaje general). Sin pesos.
+- Entrevista con el jurado: no se califica en la app.
+- Cantidad de semifinalistas y de candidatas del Top 5: editables.
+- Picks: dan puntos.
+- Ganadora: se decide solo con la noche final.
+
+## 15. Pendientes
 - Empates en los cortes.
-- Si la ganadora se decide solo con R4 o también con las rondas anteriores (propuesta: solo R4).
+- Valores de puntos por acierto (propuesta en la sección 9).

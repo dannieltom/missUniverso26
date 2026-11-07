@@ -1,5 +1,5 @@
 -- Miss Universo 2026: esquema inicial (PostgreSQL / Supabase)
--- Borrador. Los nombres de criterios son provisionales y se confirman en docs/especificacion.md (sección 14).
+-- Borrador alineado con docs/especificacion.md (sección 14). Las cantidades de cortes son editables.
 -- Pendiente: políticas de Row Level Security (RLS) antes de publicar.
 
 create extension if not exists pgcrypto;
@@ -21,7 +21,9 @@ create table rondas (
   -- puntuacion: se califica a cada candidata
   -- ranking_con_corte: se califica y además define quién avanza
   -- final: pick de la ganadora
-  tipo text not null check (tipo in ('puntuacion', 'ranking_con_corte', 'final'))
+  tipo text not null check (tipo in ('puntuacion', 'ranking_con_corte', 'final')),
+  -- Cantidad de candidatas del corte (semifinalistas, Top 5). Editable por el administrador.
+  cantidad int check (cantidad is null or cantidad >= 1)
 );
 
 -- Subsecciones de cada ronda (ej. Traje de baño, Traje de gala)
@@ -105,32 +107,32 @@ create table grupos_oficiales (
   unique (ronda_id, posicion)
 );
 
--- Datos iniciales de rondas (sin criterios confirmados todavía)
-insert into rondas (id, orden, nombre, tipo) values
-  (1, 1, 'Desfile de traje típico', 'puntuacion'),
-  (2, 2, 'Competencia preliminar', 'ranking_con_corte'),
-  (3, 3, 'Noche final: semifinalistas', 'puntuacion'),
-  (4, 4, 'Noche final: Top 5', 'ranking_con_corte'),
-  (5, 5, 'Ganadora', 'final');
+-- Datos iniciales de rondas. La cantidad de semifinalistas y del Top 5 queda nula hasta que el administrador la defina.
+insert into rondas (id, orden, nombre, tipo, cantidad) values
+  (1, 1, 'Desfile de traje típico', 'puntuacion', null),
+  (2, 2, 'Competencia preliminar', 'ranking_con_corte', null),
+  (3, 3, 'Noche final: semifinalistas', 'puntuacion', null),
+  (4, 4, 'Noche final: Top 5', 'ranking_con_corte', 5),
+  (5, 5, 'Ganadora', 'final', 1);
 
+-- La entrevista con el jurado no se califica en la app.
 insert into subsecciones (id, ronda_id, nombre) values
   (1, 1, 'Desfile de traje típico'),
   (2, 2, 'Traje de baño'),
   (3, 2, 'Traje de gala'),
-  (4, 2, 'Entrevista con el jurado'),
-  (5, 3, 'Traje de baño'),
-  (6, 3, 'Vestido de noche'),
-  (7, 4, 'Preguntas'),
-  (8, 4, 'Oratoria');
+  (4, 3, 'Traje de baño'),
+  (5, 3, 'Vestido de noche'),
+  (6, 4, 'Preguntas'),
+  (7, 4, 'Oratoria');
 
+-- Promedio simple de criterios por subsección (sin pesos).
 insert into criterios (id, subseccion_id, nombre) values
   (1, 1, 'Puntaje general'),
   (2, 2, 'Pasarela'),
   (3, 2, 'Puntaje general'),
   (4, 3, 'Pasarela'),
   (5, 3, 'Vestido'),
-  (6, 4, 'Entrevista'),
+  (6, 4, 'Puntaje general'),
   (7, 5, 'Puntaje general'),
-  (8, 6, 'Puntaje general'),
-  (9, 7, 'Respuesta'),
-  (10, 8, 'Oratoria');
+  (8, 6, 'Respuesta'),
+  (9, 7, 'Oratoria');
