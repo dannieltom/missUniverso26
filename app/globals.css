@@ -5,7 +5,86 @@
 }
 
 body {
-  background: #0b0b12;
+  margin: 0;
+  min-height: 100vh;
+  background: #05060d;
   color: #f5f5f7;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Cielo de fondo fijo: azul y rojo de Puerto Rico sobre negro espacial. */
+.cosmos {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(0, 80, 240, 0.35), transparent 55%),
+    radial-gradient(ellipse at 90% 100%, rgba(237, 28, 36, 0.28), transparent 55%),
+    #05060d;
+  overflow: hidden;
+}
+
+/* Capa de estrellas que se desplaza lentamente. */
+.estrellas {
+  position: absolute;
+  inset: -50%;
+  opacity: 0.85;
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 120px 80px, #cfe3ff, transparent),
+    radial-gradient(1.5px 1.5px at 200px 150px, #fff, transparent),
+    radial-gradient(1px 1px at 300px 40px, #ffd6d6, transparent),
+    radial-gradient(1px 1px at 60px 180px, #fff7d1, transparent);
+  background-size: 340px 220px;
+  animation: deriva 90s linear infinite;
+}
+
+@keyframes deriva {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-340px, -220px, 0);
+  }
+}
+
+/* Título con brillo que recorre los colores de la bandera. */
+.titulo-pr {
+  background: linear-gradient(90deg, #ffffff 0%, #ffffff 35%, #facc15 55%, #ed1c24 70%, #0050f0 90%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: brillo 8s linear infinite;
+}
+
+@keyframes brillo {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* Entrada suave de cada bloque. */
+.aparecer {
+  animation: aparecer 0.6s ease both;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .estrellas,
+  .titulo-pr,
+  .aparecer {
+    animation: none;
+  }
 }

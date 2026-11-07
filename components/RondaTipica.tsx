@@ -52,7 +52,7 @@ export function RondaTipica({ candidatas }: { candidatas: Candidata[] }) {
 
   if (candidatas.length === 0) {
     return (
-      <p className="rounded-xl border border-white/10 p-6 text-center text-white/70">
+      <p className="rounded-2xl border border-white/10 bg-black/50 p-6 text-center text-white/70 backdrop-blur">
         Aún no hay candidatas cargadas.
       </p>
     );
@@ -79,101 +79,121 @@ export function RondaTipica({ candidatas }: { candidatas: Candidata[] }) {
     setIndice((i) => Math.min(candidatas.length - 1, i + 1));
   }
 
-  return (
-    <div className="space-y-6">
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-        <p className="text-sm text-white/50">
-          Candidata {indice + 1} de {candidatas.length}
-        </p>
+  const progreso = ((indice + 1) / candidatas.length) * 100;
 
-        <div className="mt-3 flex gap-4">
+  return (
+    <div className="space-y-10">
+      <div className="aparecer grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+        {/* Foto grande de la candidata */}
+        <div className="relative min-h-[32rem] overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0050f0]/40 via-black to-[#ed1c24]/40">
           {actual.foto_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={actual.foto_url}
               alt={`Candidata ${actual.nombre}`}
-              className="h-32 w-24 flex-none rounded-xl object-cover"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-32 w-24 flex-none items-center justify-center rounded-xl bg-white/5 text-xs text-white/40">
+            <div className="absolute inset-0 flex items-center justify-center text-sm uppercase tracking-widest text-white/40">
               Sin foto
             </div>
           )}
-          <div className="min-w-0">
-            <h2 className="text-2xl font-semibold leading-tight">{actual.nombre}</h2>
-            <p className="text-white/70">{actual.pais}</p>
-            {actual.descripcion && (
-              <p className="mt-2 text-sm text-white/60">{actual.descripcion}</p>
-            )}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/60 to-transparent p-6">
+            <p className="text-sm uppercase tracking-widest text-[#facc15]">{actual.pais}</p>
+            <h2 className="text-3xl font-black uppercase leading-tight sm:text-4xl">
+              {actual.nombre}
+            </h2>
           </div>
         </div>
 
-        <form
-          className="mt-6 flex items-end gap-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            guardarPuntaje();
-          }}
-        >
-          <label className="flex-1">
-            <span className="mb-1 block text-sm text-white/60">
-              Puntaje ({PUNTAJE_MIN.toFixed(1)} a {PUNTAJE_MAX.toFixed(1)})
+        {/* Calificación */}
+        <section className="flex flex-col rounded-3xl border border-white/10 bg-black/50 p-6 backdrop-blur md:p-10">
+          <div className="flex items-center justify-between text-sm text-white/60">
+            <span>
+              Candidata {indice + 1} de {candidatas.length}
             </span>
-            <input
-              inputMode="decimal"
-              value={entrada}
-              onChange={(e) => setEntrada(e.target.value)}
-              placeholder="9.5"
-              className="w-full rounded-xl border border-white/15 bg-black/40 px-4 py-3 text-2xl font-semibold outline-none focus:border-fuchsia-400"
+          </div>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#ed1c24] via-[#facc15] to-[#0050f0] transition-all duration-500"
+              style={{ width: `${progreso}%` }}
             />
-          </label>
-          <button
-            type="submit"
-            className="rounded-xl bg-fuchsia-500 px-5 py-3 font-semibold text-white active:scale-95"
-          >
-            Guardar
-          </button>
-        </form>
+          </div>
 
-        {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
+          {actual.descripcion && (
+            <p className="mt-6 text-white/70">{actual.descripcion}</p>
+          )}
 
-        <div className="mt-4 flex justify-between">
-          <button
-            type="button"
-            onClick={anterior}
-            disabled={indice === 0}
-            className="rounded-lg px-3 py-2 text-white/70 disabled:opacity-30"
+          <form
+            className="mt-8"
+            onSubmit={(e) => {
+              e.preventDefault();
+              guardarPuntaje();
+            }}
           >
-            ← Anterior
-          </button>
-          <button
-            type="button"
-            onClick={siguiente}
-            disabled={indice === candidatas.length - 1}
-            className="rounded-lg px-3 py-2 text-white/70 disabled:opacity-30"
-          >
-            Siguiente →
-          </button>
-        </div>
-      </section>
+            <label className="block">
+              <span className="mb-2 block text-sm uppercase tracking-widest text-white/60">
+                Puntaje ({PUNTAJE_MIN.toFixed(1)} a {PUNTAJE_MAX.toFixed(1)})
+              </span>
+              <input
+                inputMode="decimal"
+                value={entrada}
+                onChange={(e) => setEntrada(e.target.value)}
+                placeholder="9.5"
+                className="w-full rounded-2xl border border-white/15 bg-black/60 px-5 py-4 text-center text-6xl font-black tabular-nums text-[#facc15] outline-none transition placeholder:text-white/20 focus:border-[#facc15] focus:shadow-[0_0_30px_rgba(250,204,21,0.25)]"
+              />
+            </label>
+
+            <button
+              type="submit"
+              className="mt-4 w-full rounded-2xl bg-gradient-to-r from-[#ed1c24] to-[#0050f0] px-6 py-4 text-lg font-bold uppercase tracking-wider text-white shadow-lg transition hover:brightness-110 active:scale-[0.98]"
+            >
+              Guardar y seguir
+            </button>
+          </form>
+
+          {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+
+          <div className="mt-auto flex justify-between pt-8">
+            <button
+              type="button"
+              onClick={anterior}
+              disabled={indice === 0}
+              className="rounded-full border border-white/15 px-5 py-2 text-white/80 transition hover:border-white disabled:opacity-30"
+            >
+              ← Anterior
+            </button>
+            <button
+              type="button"
+              onClick={siguiente}
+              disabled={indice === candidatas.length - 1}
+              className="rounded-full border border-white/15 px-5 py-2 text-white/80 transition hover:border-white disabled:opacity-30"
+            >
+              Siguiente →
+            </button>
+          </div>
+        </section>
+      </div>
 
       <section>
-        <h3 className="mb-3 text-lg font-semibold">Ranking</h3>
+        <h3 className="mb-4 text-2xl font-black uppercase">Ranking</h3>
         {ranking.length === 0 ? (
-          <p className="text-sm text-white/50">Aún no has calificado a ninguna candidata.</p>
+          <p className="text-white/50">Aún no has calificado a ninguna candidata.</p>
         ) : (
-          <ol className="space-y-2">
+          <ol className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {ranking.map(({ candidata, puntaje }, posicion) => (
               <li
                 key={candidata.id}
-                className="flex items-center justify-between rounded-xl border border-white/10 px-4 py-2"
+                className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/50 px-5 py-3 backdrop-blur"
               >
-                <span>
-                  <span className="mr-3 text-white/40">{posicion + 1}.</span>
-                  {candidata.nombre}{" "}
+                <span className="min-w-0">
+                  <span className="mr-3 font-black text-[#ed1c24]">{posicion + 1}</span>
+                  <span className="font-semibold">{candidata.nombre}</span>{" "}
                   <span className="text-white/50">({candidata.pais})</span>
                 </span>
-                <span className="font-semibold tabular-nums">{puntaje.toFixed(1)}</span>
+                <span className="ml-4 flex-none text-xl font-black tabular-nums text-[#facc15]">
+                  {puntaje.toFixed(1)}
+                </span>
               </li>
             ))}
           </ol>

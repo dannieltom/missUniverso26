@@ -34,7 +34,7 @@ export function InicioSesion({ children }: { children: ReactNode }) {
 
   if (!supabase) {
     return (
-      <p className="rounded-xl border border-red-500/40 bg-red-500/10 p-4 text-red-200">
+      <p className="rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-red-200">
         Falta configurar NEXT_PUBLIC_SUPABASE_URL y la clave pública en .env.local.
       </p>
     );
@@ -59,16 +59,16 @@ export function InicioSesion({ children }: { children: ReactNode }) {
 
   if (!sesion) {
     return (
-      <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-center">
-        <p className="mb-4 text-white/70">Inicia sesión con Google para calificar.</p>
+      <section className="aparecer rounded-3xl border border-white/10 bg-black/50 p-10 text-center backdrop-blur">
+        <p className="mb-6 text-lg text-white/70">Inicia sesión con Google para calificar.</p>
         <button
           type="button"
           onClick={iniciarSesion}
-          className="rounded-xl bg-white px-5 py-3 font-semibold text-black active:scale-95"
+          className="rounded-full bg-white px-8 py-3 font-bold uppercase tracking-wider text-black transition hover:bg-[#facc15] active:scale-95"
         >
           Iniciar sesión con Google
         </button>
-        {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+        {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
       </section>
     );
   }
@@ -79,12 +79,12 @@ export function InicioSesion({ children }: { children: ReactNode }) {
     "Jugador";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="flex items-center justify-between text-sm text-white/60">
         <span>
-          Sesión: <span className="text-white">{nombre}</span>
+          Sesión: <span className="font-semibold text-white">{nombre}</span>
         </span>
-        <button type="button" onClick={cerrarSesion} className="underline underline-offset-4">
+        <button type="button" onClick={cerrarSesion} className="underline underline-offset-4 hover:text-white">
           Cerrar sesión
         </button>
       </div>
