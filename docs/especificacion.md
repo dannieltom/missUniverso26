@@ -4,10 +4,10 @@
 Aplicación web para seguir el Miss Universo 2026 en vivo. Cada persona califica a las candidatas en cada ronda mientras ve la transmisión. El sistema calcula los rankings, los compara con los resultados oficiales y, cuando el certamen anuncia quiénes avanzan, cambia el grupo de candidatas de la siguiente ronda. Puede usarse sola o en partida con amigos, como juego.
 
 ## 2. Modos de uso
-- **Individual:** sin sala ni código. La persona entra por el enlace, elige apodo y usa la app para ella. Tiene su historial y sus aciertos contra los resultados oficiales.
-- **Partida (sala):** alguien crea una sala y recibe un código corto (ej. `MU-7K3P`) y un enlace. Los demás entran con el código y su apodo. Todos ven el marcador en vivo.
+- **Individual:** sin sala ni código. La persona inicia sesión con Google y usa la app para ella. Tiene su historial y sus aciertos contra los resultados oficiales.
+- **Partida (sala):** alguien crea una sala y recibe un código corto (ej. `MU-7K3P`) y un enlace. Los demás inician sesión con Google, entran con el código y todos ven el marcador en vivo.
 - **Sin sala, varias personas:** cada amigo usa la app por su cuenta, sin marcador compartido.
-- **Sin registro:** no hay login. Cada persona tiene una identidad anónima guardada en su navegador, con un código de recuperación para restaurarla en otro dispositivo.
+- **Inicio de sesión obligatorio:** para usar la app se requiere iniciar sesión con Google. Google maneja la identidad y la recuperación de acceso, así que no hay código de recuperación ni apodo anónimo. El apodo se toma del nombre de la cuenta y puede cambiarse dentro de la app.
 - **Participación parcial:** cada persona o sala elige qué rondas jugar. Nada es obligatorio.
 
 ## 3. Rondas
@@ -80,7 +80,7 @@ Cada ronda es independiente: tiene sus criterios, su grupo de candidatas, su ran
 
 ## 11. Requisitos no funcionales
 - Responsive y usable en celular.
-- Sin login obligatorio.
+- Inicio de sesión obligatorio con Google.
 - Datos persistentes entre recargas.
 - Sincronización en menos de 2 segundos.
 - Solo el administrador puede modificar resultados oficiales.
@@ -93,7 +93,7 @@ Ver `supabase/migrations/20261107000000_init_miss_universo.sql`.
 - **Datos y tiempo real:** Supabase (PostgreSQL + Realtime).
 - **Animaciones y gráficas:** Framer Motion y Recharts.
 - **Hosting:** Vercel para el frontend y Supabase para los datos.
-- **Identidad:** token anónimo en el navegador y código de recuperación, sin login.
+- **Identidad:** inicio de sesión con Google mediante Supabase Auth.
 - **Alternativa académica:** Node.js con Express o Fastify, PostgreSQL y Socket.IO.
 
 ## 14. Decisiones confirmadas
