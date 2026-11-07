@@ -4,21 +4,28 @@ Aplicación web para seguir el Miss Universo 2026 (Puerto Rico) en vivo. Cada pe
 
 ## Estado
 
-Fase inicial. Están definidos la especificación (`docs/especificacion.md`) y el esquema de datos (`supabase/schema.sql`). El frontend aún no está creado.
+- Especificación: `docs/especificacion.md`.
+- Esquema y datos iniciales de rondas: `supabase/migrations/`.
+- App: ronda R1 (desfile de traje típico) con calificación de 1.0 a 10.0 y ranking. Los puntajes se guardan en el navegador por ahora; el guardado en Supabase llega después.
 
-## Stack propuesto
+## Cómo correrla en tu computador
 
-- Frontend: Next.js, React, TypeScript, Tailwind CSS (PWA responsive).
-- Datos y tiempo real: Supabase (PostgreSQL + Realtime).
-- Hosting: Vercel (frontend) y Supabase (datos).
-
-## Estructura
+1. Instala Node.js 20 o superior.
+2. Copia `.env.example` a `.env.local` y completa la URL del proyecto y la clave pública de Supabase.
+3. Instala dependencias y arranca:
 
 ```
-docs/            Especificación funcional
-supabase/migrations/  Migración inicial (esquema y datos de rondas)
+npm install
+npm run dev
 ```
 
-## Pendientes antes de programar la calificación
+Luego abre http://localhost:3000.
 
-Ver la sección 15 de `docs/especificacion.md`. Las decisiones ya confirmadas están en la sección 14.
+## Stack
+
+- Next.js (App Router), React, TypeScript, Tailwind CSS.
+- Supabase (PostgreSQL + Realtime).
+
+## Pendientes
+
+Ver la sección 15 de `docs/especificacion.md`.
