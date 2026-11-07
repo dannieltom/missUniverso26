@@ -86,7 +86,7 @@ Cada ronda es independiente: tiene sus criterios, su grupo de candidatas, su ran
 - Solo el administrador puede modificar resultados oficiales.
 
 ## 12. Modelo de datos
-Ver `supabase/schema.sql`.
+Ver `supabase/migrations/20261107000000_init_miss_universo.sql`.
 
 ## 13. Tecnología propuesta
 - **Frontend:** Next.js con React, TypeScript y Tailwind CSS. Versión web responsive instalable (PWA).

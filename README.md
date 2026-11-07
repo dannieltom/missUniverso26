@@ -16,7 +16,7 @@ Fase inicial. Están definidos la especificación (`docs/especificacion.md`) y e
 
 ```
 docs/            Especificación funcional
-supabase/        Esquema SQL y datos iniciales de rondas
+supabase/migrations/  Migración inicial (esquema y datos de rondas)
 ```
 
 ## Pendientes antes de programar la calificación
