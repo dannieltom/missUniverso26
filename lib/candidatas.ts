@@ -20,7 +20,7 @@ export async function getCandidatas(): Promise<{ candidatas: Candidata[]; error:
   const supabase = createClient(url, clave);
   const { data, error } = await supabase
     .from("candidatas")
-    .select("id, nombre, pais, foto_url, descripcion")
+    .select("id, nombre, pais, region, foto_url, descripcion")
     .order("nombre", { ascending: true });
 
   if (error) {

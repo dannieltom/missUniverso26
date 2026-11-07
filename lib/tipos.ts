@@ -1,7 +1,20 @@
+/** Regiones en el orden en que se muestran. La clave es la que se guarda en la base de datos. */
+export const REGIONES = [
+  { clave: "America", etiqueta: "América" },
+  { clave: "Caribe", etiqueta: "Caribe" },
+  { clave: "Europa", etiqueta: "Europa" },
+  { clave: "Africa", etiqueta: "África" },
+  { clave: "Asia", etiqueta: "Asia" },
+  { clave: "Oceania", etiqueta: "Oceanía" },
+] as const;
+
+export type Region = (typeof REGIONES)[number]["clave"];
+
 export type Candidata = {
   id: string;
   nombre: string;
   pais: string;
+  region: Region | null;
   foto_url: string | null;
   descripcion: string | null;
 };

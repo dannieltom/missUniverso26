@@ -1,5 +1,6 @@
 import { RondaTipica } from "@/components/RondaTipica";
 import { InicioSesion } from "@/components/InicioSesion";
+import { GaleriaCandidatas } from "@/components/GaleriaCandidatas";
 import { getCandidatas } from "@/lib/candidatas";
 
 // Siempre lee las candidatas al momento de la visita.
@@ -19,7 +20,10 @@ export default async function Home() {
             {error}
           </p>
         ) : (
-          <RondaTipica candidatas={candidatas} />
+          <>
+            <RondaTipica candidatas={candidatas} />
+            <GaleriaCandidatas candidatas={candidatas} />
+          </>
         )}
       </InicioSesion>
     </main>
