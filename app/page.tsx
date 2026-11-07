@@ -1,6 +1,6 @@
-import { RondaTipica } from "@/components/RondaTipica";
 import { InicioSesion } from "@/components/InicioSesion";
-import { GaleriaCandidatas } from "@/components/GaleriaCandidatas";
+import { ComoFunciona } from "@/components/ComoFunciona";
+import { Juego } from "@/components/Juego";
 import { PortadaVideo } from "@/components/PortadaVideo";
 import { getCandidatas } from "@/lib/candidatas";
 
@@ -18,13 +18,8 @@ export default async function Home() {
 
       <PortadaVideo />
 
-      <main className="mx-auto w-full max-w-7xl px-6 pb-24">
-        <section className="aparecer mb-10">
-          <p className="text-sm font-semibold uppercase tracking-widest text-[#ed1c24]">
-            Ronda 1
-          </p>
-          <h2 className="text-4xl font-black uppercase sm:text-5xl">Desfile de traje típico</h2>
-        </section>
+      <main className="mx-auto w-full max-w-7xl space-y-24 px-6 pb-24">
+        <ComoFunciona />
 
         <InicioSesion>
           {error ? (
@@ -32,10 +27,7 @@ export default async function Home() {
               {error}
             </p>
           ) : (
-            <>
-              <RondaTipica candidatas={candidatas} />
-              <GaleriaCandidatas candidatas={candidatas} />
-            </>
+            <Juego candidatas={candidatas} />
           )}
         </InicioSesion>
       </main>
