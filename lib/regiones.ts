@@ -34,6 +34,7 @@ const POR_PAIS: Record<string, SubregionId> = {
   "El Salvador": "centroamerica",
   Guatemala: "centroamerica",
   Honduras: "centroamerica",
+  Mexico: "centroamerica",
   Nicaragua: "centroamerica",
   Panama: "centroamerica",
 
@@ -59,7 +60,6 @@ const POR_PAIS: Record<string, SubregionId> = {
 
   // Norteamérica
   Canada: "norteamerica",
-  Mexico: "norteamerica",
   USA: "norteamerica",
 
   // Europa
@@ -94,7 +94,6 @@ const POR_PAIS: Record<string, SubregionId> = {
   Poland: "europa",
   Portugal: "europa",
   Romania: "europa",
-  Russia: "europa",
   Serbia: "europa",
   Slovakia: "europa",
   Spain: "europa",
@@ -122,6 +121,7 @@ const POR_PAIS: Record<string, SubregionId> = {
   Nepal: "asia",
   Pakistan: "asia",
   Philippines: "asia",
+  Russia: "asia",
   "Sri Lanka": "asia",
   Türkiye: "asia",
 
