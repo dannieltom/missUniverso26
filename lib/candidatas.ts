@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { Candidata } from "@/lib/tipos";
 
 /**
- * Lee las candidatas desde Supabase, en orden alfabético (orden de desfile).
+ * Lee las candidatas desde Supabase, en orden alfabético por país y luego por nombre.
  * Si falta la configuración o hay error, devuelve una lista vacía y el error como texto.
  */
 export async function getCandidatas(): Promise<{ candidatas: Candidata[]; error: string | null }> {
@@ -21,6 +21,7 @@ export async function getCandidatas(): Promise<{ candidatas: Candidata[]; error:
   const { data, error } = await supabase
     .from("candidatas")
     .select("id, nombre, pais, region, foto_url, descripcion")
+    .order("pais", { ascending: true })
     .order("nombre", { ascending: true });
 
   if (error) {
