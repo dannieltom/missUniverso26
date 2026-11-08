@@ -732,17 +732,48 @@ function Comparacion({
 }) {
   const setOficial = new Set(oficial);
   const setPredicho = new Set(predicho);
-  const aciertos = predicho.filter((id) => setOficial.has(id));
-  const fallos = predicho.filter((id) => !setOficial.has(id));
-  const escapadas = oficial.filter((id) => !setPredicho.has(id));
   return (
     <div className="space-y-4">
       <h4 className="text-xl font-black uppercase">{titulo}</h4>
-      <div className="grid gap-6 md:grid-cols-3">
-        <Columna titulo={`✓ Sí pasaron (${aciertos.length})`} color="text-emerald-400" ids={aciertos} porId={porId} />
-        <Columna titulo={`✗ No pasaron (${fallos.length})`} color="text-red-400" ids={fallos} porId={porId} />
-        <Columna titulo={`Pasaron y no las elegiste (${escapadas.length})`} color="text-[#facc15]" ids={escapadas} porId={porId} />
+      <div className="grid gap-6 md:grid-cols-2">
+        <ListaMarcada titulo={`Top oficial (${oficial.length})`} ids={oficial} referencia={setPredicho} porId={porId} />
+        <ListaMarcada titulo={`Tu top (${predicho.length})`} ids={predicho} referencia={setOficial} porId={porId} />
       </div>
+    </div>
+  );
+}
+
+// Lista de un lado con ✓ si la otra lista la tiene, y ✗ si no.
+function ListaMarcada({
+  titulo,
+  ids,
+  referencia,
+  porId,
+}: {
+  titulo: string;
+  ids: string[];
+  referencia: Set<string>;
+  porId: Map<string, Candidata>;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/50 p-5">
+      <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/70">{titulo}</p>
+      <ul className="space-y-2">
+        {ids.map((id) => {
+          const c = porId.get(id);
+          if (!c) return null;
+          const acerto = referencia.has(id);
+          return (
+            <li key={id} className="flex items-center gap-3">
+              <Bandera pais={c.pais} />
+              <span className="flex-1 font-semibold">{c.pais}</span>
+              <span className={`text-lg font-black ${acerto ? "text-emerald-400" : "text-red-400"}`}>
+                {acerto ? "✓" : "✗"}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
