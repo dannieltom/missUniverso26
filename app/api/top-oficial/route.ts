@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 type Cuerpo = {
   pin: string;
-  accion: "agregar" | "quitar" | "limpiar";
+  accion: "agregar" | "quitar" | "limpiar" | "fijar_corte";
   anio: number;
   corte: number;
   candidata_id?: string;
@@ -59,6 +59,14 @@ export async function POST(req: Request) {
   }
 
   try {
+    if (accion === "fijar_corte") {
+      const { error } = await db
+        .from("top_oficial_config")
+        .upsert({ anio, corte }, { onConflict: "anio" });
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ ok: true });
+    }
+
     if (accion === "agregar") {
       if (!cuerpo.candidata_id) {
         return NextResponse.json({ error: "Falta la candidata." }, { status: 400 });
