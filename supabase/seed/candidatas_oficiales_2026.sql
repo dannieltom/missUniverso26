@@ -52,7 +52,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Cuba', 'Cuba', 'Caribe', 'Mia Angelina Donadio Cancio', 'Miss Universe Cuba 2026', '/fotos/cuba.jpg'),
 ('Curazao', 'Curaçao', 'Caribe', 'Blanty Rojer Comperts', 'Miss Universe Curaçao 2026', '/fotos/curacao.jpg'),
 ('República Checa', 'Czech Republic', 'Europa', 'Dominika Viktorie Kotoučková', 'Miss Universe Czech Republic 2026', null),
-('República Democrática del Congo', 'Democratic Republic of Congo', 'Africa', 'Jessi Longwe Kalambayi', 'Miss Universe RD Congo 2026', null),
+('República Democrática del Congo', 'Democratic Republic of Congo', 'Africa', 'Jessi Longwe Kalambayi', 'Miss Universe RD Congo 2026', '/fotos/democratic-republic-of-congo.jpg'),
 ('Dinamarca', 'Denmark', 'Europa', 'Fie Rose Lindegaard', 'Miss Universe Denmark 2026', '/fotos/denmark.jpg'),
 ('República Dominicana', 'Dominican Republic', 'Caribe', 'Melissa Núñez', 'Miss República Dominicana Universo 2026', null),
 ('Ecuador', 'Ecuador', 'America', 'Dalia Bucaram', 'Miss Universo Ecuador 2026', '/fotos/ecuador.jpg'),
