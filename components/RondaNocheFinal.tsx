@@ -5,7 +5,6 @@ import type { Candidata } from "@/lib/tipos";
 import { PUNTAJE_MAX, PUNTAJE_MIN, parsearPuntaje } from "@/lib/tipos";
 import { urlBandera } from "@/lib/banderas";
 import { truncarTexto } from "@/lib/formato";
-import { BuscarTopOficial } from "@/components/BuscarTopOficial";
 import { TopOficialCompartido } from "@/components/TopOficialCompartido";
 
 // Noche final en cascada:
@@ -252,8 +251,6 @@ export function RondaNocheFinal({ candidatas }: { candidatas: Candidata[] }) {
   return (
     <div className="space-y-10">
       <TopOficialCompartido candidatas={candidatas} />
-
-      <BuscarTopOficial candidatas={candidatas} />
 
       {/* Etapa 1: top N1 */}
       <section className="space-y-6">
