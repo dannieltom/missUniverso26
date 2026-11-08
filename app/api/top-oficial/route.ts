@@ -1,35 +1,37 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { timingSafeEqual } from "crypto";
 
 export const runtime = "nodejs";
 
 type Cuerpo = {
-  pin: string;
-  accion: "verificar" | "agregar" | "quitar" | "limpiar" | "fijar_corte";
   anio: number;
   corte: number;
+  accion: "verificar" | "agregar" | "quitar" | "limpiar" | "fijar_corte";
   candidata_id?: string;
 };
 
-// Compara el PIN en tiempo constante para no filtrar información por tiempos de respuesta.
-function pinValido(recibido: string): boolean {
-  const esperado = process.env.ADMIN_PIN;
-  if (!esperado || !recibido) return false;
-  const a = Buffer.from(recibido);
-  const b = Buffer.from(esperado);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
+// Solo la cuenta de Google indicada en ADMIN_EMAIL puede cambiar el top oficial.
+async function esAdministrador(req: Request): Promise<boolean> {
+  const token = req.headers.get("authorization")?.replace(/^Bearer /, "");
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const servicio = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const correoAdmin = process.env.ADMIN_EMAIL;
+  if (!token || !url || !servicio || !correoAdmin) return false;
+
+  const db = createClient(url, servicio, { auth: { persistSession: false } });
+  const { data, error } = await db.auth.getUser(token);
+  if (error || !data.user?.email) return false;
+  return data.user.email.toLowerCase() === correoAdmin.toLowerCase();
 }
 
 export async function POST(req: Request) {
-  const cuerpo = (await req.json()) as Cuerpo;
-
-  if (!pinValido(cuerpo.pin)) {
-    return NextResponse.json({ error: "PIN incorrecto." }, { status: 401 });
+  if (!(await esAdministrador(req))) {
+    return NextResponse.json({ error: "No autorizado. Inicia sesión con la cuenta de administrador." }, { status: 401 });
   }
 
-  // Solo comprueba el PIN, sin cambiar nada.
+  const cuerpo = (await req.json()) as Cuerpo;
+
+  // Solo comprueba la cuenta, sin cambiar nada.
   if (cuerpo.accion === "verificar") {
     return NextResponse.json({ ok: true });
   }
@@ -37,13 +39,10 @@ export async function POST(req: Request) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const servicio = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !servicio) {
-    return NextResponse.json(
-      { error: "Falta NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en el servidor." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Falta configurar Supabase en el servidor." }, { status: 500 });
   }
 
-  // La clave de servicio salta las reglas de seguridad: solo se usa aquí, después de validar el PIN.
+  // La clave de servicio salta las reglas de seguridad: solo se usa aquí, después de validar la cuenta.
   const db = createClient(url, servicio, { auth: { persistSession: false } });
   const { anio, corte, accion } = cuerpo;
 
@@ -65,9 +64,7 @@ export async function POST(req: Request) {
 
   try {
     if (accion === "fijar_corte") {
-      const { error } = await db
-        .from("top_oficial_config")
-        .upsert({ anio, corte }, { onConflict: "anio" });
+      const { error } = await db.from("top_oficial_config").upsert({ anio, corte }, { onConflict: "anio" });
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
       return NextResponse.json({ ok: true });
     }

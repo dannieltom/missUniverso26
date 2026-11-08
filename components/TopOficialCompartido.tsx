@@ -128,7 +128,8 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
   const [tamanoPropio, setTamanoPropio] = useState(CORTE_POR_DEFECTO);
 
   // Administrador
-  const [pin, setPin] = useState("");
+  // null = todavía comprobando; true/false = si la cuenta de Google es la de administrador.
+  const [autorizado, setAutorizado] = useState<boolean | null>(null);
   const [cortePendiente, setCortePendiente] = useState(CORTE_POR_DEFECTO);
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [trabajando, setTrabajando] = useState(false);
@@ -200,10 +201,14 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
     setTrabajando(true);
     setMensaje(null);
     try {
+      // Manda la sesión de Google para que el servidor compruebe que eres tú.
+      const db = supabaseNavegador();
+      const { data } = db ? await db.auth.getSession() : { data: { session: null } };
+      const token = data.session?.access_token ?? "";
       const res = await fetch("/api/top-oficial", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin, anio: ANIO, corte, ...payload }),
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ anio: ANIO, corte, ...payload }),
       });
       const datos = (await res.json()) as { error?: string };
       if (!res.ok) {
@@ -218,6 +223,13 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
       setTrabajando(false);
     }
   }
+
+  // En /admin, comprueba si la cuenta de Google con la que entraste es la de administrador.
+  useEffect(() => {
+    if (!admin) return;
+    enviarAdmin({ accion: "verificar" }).then((ok) => setAutorizado(ok));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [admin]);
 
   const completoPropio = propio.length >= tamanoPropio;
   const completoOficial = filas.length >= corte;
@@ -287,17 +299,32 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
         </div>
       )}
 
-      {admin && (
+      {admin && autorizado === null && (
+        <p className="mt-8 border-t border-white/10 pt-6 text-sm text-white/50">Comprobando tu cuenta…</p>
+      )}
+
+      {admin && autorizado === false && (
+        <div className="mt-8 space-y-4 border-t border-white/10 pt-6">
+          <p className="text-sm text-white/70">
+            Esta página es solo para el administrador. Inicia sesión con la cuenta de administrador.
+          </p>
+          <button
+            type="button"
+            onClick={() =>
+              supabaseNavegador()?.auth.signInWithOAuth({
+                provider: "google",
+                options: { redirectTo: window.location.href },
+              })
+            }
+            className="rounded-full bg-white px-6 py-2 font-bold text-black transition hover:bg-[#facc15]"
+          >
+            Iniciar sesión con Google
+          </button>
+        </div>
+      )}
+
+      {admin && autorizado === true && (
         <div className="mt-8 space-y-5 border-t border-white/10 pt-6">
-          <label className="flex flex-col gap-1 text-sm text-white/70">
-            PIN de administrador
-            <input
-              type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              className="w-56 rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-white outline-none focus:border-[#facc15]"
-            />
-          </label>
 
           <div className="flex flex-wrap items-end gap-3">
             <label className="flex flex-col gap-1 text-sm text-white/70">
@@ -312,7 +339,7 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
             </label>
             <button
               type="button"
-              disabled={!pin || trabajando || cortePendiente === corte}
+              disabled={trabajando || cortePendiente === corte}
               onClick={() => enviarAdmin({ accion: "fijar_corte", corte: cortePendiente })}
               className="rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white/80 transition hover:border-white disabled:opacity-40"
             >
@@ -325,7 +352,7 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
             <Buscador
               candidatas={candidatas}
               excluir={new Set(filas)}
-              deshabilitado={!pin || completoOficial || trabajando}
+              deshabilitado={completoOficial || trabajando}
               onElegir={(id) => enviarAdmin({ accion: "agregar", candidata_id: id })}
             />
           </div>
@@ -334,14 +361,14 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
             ids={filas}
             porId={porId}
             onQuitar={(id) => {
-              if (pin) enviarAdmin({ accion: "quitar", candidata_id: id });
+              enviarAdmin({ accion: "quitar", candidata_id: id });
             }}
           />
 
           {filas.length > 0 && (
             <button
               type="button"
-              disabled={!pin || trabajando}
+              disabled={trabajando}
               onClick={() => {
                 if (window.confirm("¿Borrar todo el top oficial?")) enviarAdmin({ accion: "limpiar" });
               }}
