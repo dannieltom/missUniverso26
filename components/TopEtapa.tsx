@@ -191,8 +191,7 @@ export function TopEtapa({
   const aciertos = picks.filter((id) => enOficial.has(id));
   const fallos = picks.filter((id) => !enOficial.has(id));
   // ---------- Administrador ----------
-  if (soyAdmin) {
-    return (
+  const bloqueAdmin = soyAdmin ? (
       <div className="rounded-3xl border border-white/10 bg-black/50 p-6 backdrop-blur md:p-8">
         <h4 className="text-xl font-black uppercase">Top {tamano} oficial</h4>
         <p className="mt-2 text-sm text-white/50">
@@ -281,14 +280,15 @@ export function TopEtapa({
           {mensaje && <p className="text-sm text-red-400">{mensaje}</p>}
         </div>
       </div>
-    );
-  }
+    ) : null;
 
-  // ---------- Participantes ----------
+  // ---------- Participantes (también las ve el admin, para armar su propio top) ----------
   const pickearDisponible = !esInicial && !!anterior;
   const poolBloqueado = pickearDisponible && !anterior!.completo;
 
   return (
+    <div className="space-y-6">
+    {bloqueAdmin}
     <div className="rounded-3xl border border-white/10 bg-black/50 p-6 backdrop-blur md:p-8">
       <h4 className="text-xl font-black uppercase">Top {tamano}</h4>
 
@@ -406,6 +406,7 @@ export function TopEtapa({
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
