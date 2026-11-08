@@ -151,10 +151,13 @@ export function TopEtapa({
 }: Props) {
   const esInicial = clave === "inicial";
   const [miTop, setMiTop] = useState<string[]>([]);
-  const [tamanoPendiente, setTamanoPendiente] = useState(tamano);
+  // Texto del campo, tal como lo escribe el admin (puede quedar vacío mientras digita).
+  const [tamanoPendiente, setTamanoPendiente] = useState(String(tamano));
+  const tamanoNumero = Math.floor(Number(tamanoPendiente));
+  const tamanoValido = tamanoPendiente.trim() !== "" && Number.isInteger(tamanoNumero) && tamanoNumero >= 1;
 
   useEffect(() => {
-    setTamanoPendiente(tamano);
+    setTamanoPendiente(String(tamano));
   }, [tamano]);
 
   // Tu top: en la inicial sale de la preliminar; en las demás lo armas tú con el oficial anterior.
@@ -225,14 +228,14 @@ export function TopEtapa({
                 type="number"
                 min={1}
                 value={tamanoPendiente}
-                onChange={(e) => setTamanoPendiente(Math.max(1, Number(e.target.value)))}
+                onChange={(e) => setTamanoPendiente(e.target.value)}
                 className="w-28 rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-white outline-none focus:border-[#facc15]"
               />
             </label>
             <button
               type="button"
-              disabled={trabajando || tamanoPendiente === tamano}
-              onClick={() => enviarAdmin({ accion: "fijar_tamano", tamano: tamanoPendiente })}
+              disabled={trabajando || !tamanoValido || tamanoNumero === tamano}
+              onClick={() => enviarAdmin({ accion: "fijar_tamano", tamano: tamanoNumero })}
               className="rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white/80 transition hover:border-white disabled:opacity-40"
             >
               Guardar tamaño
