@@ -89,7 +89,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Corea del Sur', 'Korea', 'Asia', 'Yurim Kim', null, '/fotos/korea.jpg'),
 ('Kosovo', 'Kosovo', 'Europa', 'Evisa Pacolli', 'Miss Universe Kosovo 2026', '/fotos/kosovo.jpg'),
 ('Kirguistán', 'Kyrgyzstan', 'Asia', 'Medina Ermekova', 'Miss Universe Kyrgyzstan 2026', '/fotos/kyrgyzstan.jpg'),
-('Letonia', 'Latvia', 'Europa', 'Lāsma Kuhtarska', 'Miss Universe Latvia 2026', null),
+('Letonia', 'Latvia', 'Europa', 'Lāsma Kuhtarska', 'Miss Universe Latvia 2026', '/fotos/latvia.jpg'),
 ('Líbano', 'Lebanon', 'Asia', 'Perla Harb', 'Miss Universe Lebanon 2026', null),
 ('Lituania', 'Lithuania', 'Europa', 'Olga Bykadorova', 'Miss Universe Lithuania 2026', null),
 ('Macao', 'Macau', 'Asia', 'Hou Xuhe', 'Miss Universe Macau 2026', null),
