@@ -3,6 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { PUNTAJE_MAX, PUNTAJE_MIN, parsearPuntaje } from "@/lib/tipos";
+import { urlBandera } from "@/lib/banderas";
+
+function BanderaPais({ pais }: { pais: string }) {
+  const url = urlBandera(pais);
+  if (!url) return null;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={url} alt="" className="h-5 w-7 flex-none rounded-sm object-cover" />;
+}
 
 const CLAVE_STORAGE = "mu26-r1-desfile-traje-tipico";
 
@@ -214,10 +222,10 @@ export function RondaTipica({ candidatas }: { candidatas: Candidata[] }) {
                 title="Toca para corregir su puntaje"
                 className="flex cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-black/50 px-5 py-3 backdrop-blur transition hover:border-[#facc15]/60"
               >
-                <span className="min-w-0">
-                  <span className="mr-3 font-black text-[#ed1c24]">{posicion + 1}</span>
-                  <span className="font-semibold">{candidata.nombre}</span>{" "}
-                  <span className="text-white/50">({candidata.pais})</span>
+                <span className="flex min-w-0 items-center gap-3">
+                  <span className="mr-1 font-black text-[#ed1c24]">{posicion + 1}</span>
+                  <BanderaPais pais={candidata.pais} />
+                  <span className="truncate font-semibold">{candidata.pais}</span>
                 </span>
                 <span className="ml-4 flex-none text-xl font-black tabular-nums text-[#facc15]">
                   {puntaje.toFixed(1)}
