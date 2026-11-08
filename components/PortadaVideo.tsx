@@ -55,7 +55,7 @@ export function PortadaVideo() {
   }
 
   return (
-    <header className="relative isolate flex min-h-[80vh] items-end overflow-hidden">
+    <header className="relative z-40 isolate flex min-h-[80vh] items-end overflow-hidden">
       <video
         ref={video}
         className="absolute inset-0 -z-10 h-full w-full object-cover"
