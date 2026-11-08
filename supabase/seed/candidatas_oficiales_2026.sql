@@ -108,7 +108,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Nicaragua', 'Nicaragua', 'America', 'Jasmine Chola', 'Miss Universe Nicaragua 2026', '/fotos/nicaragua.jpg'),
 (null, 'Nigeria', 'Africa', 'Nigeria', null, '/fotos/nigeria.jpg'),
 ('Macedonia del Norte', 'North Macedonia', 'Europa', 'Katia Doneva', 'Miss Universe North Macedonia 2026', null),
-('Noruega', 'Norway', 'Europa', 'Abelone Smedsrud', 'Miss Norway 2026', null),
+('Noruega', 'Norway', 'Europa', 'Abelone Smedsrud', 'Miss Norway 2026', '/fotos/norway.jpg'),
 ('Pakistán', 'Pakistan', 'Asia', 'Misbah Arshad', 'Miss Universe Pakistan 2026', null),
 ('Panamá', 'Panama', 'America', 'Gabriela Lineth González Del Valle', 'Miss Universo Panamá 2026', null),
 ('Paraguay', 'Paraguay', 'America', 'Gretha Milagros Estigarribia Matiauda', 'Miss Universo Paraguay 2026', null),
