@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { PUNTAJE_MAX, PUNTAJE_MIN, parsearPuntaje } from "@/lib/tipos";
+import { urlBandera } from "@/lib/banderas";
 
-// Primero desfilan en traje de baño: se califica a todas. Después, en traje de gala, desde la primera.
+// Primero desfilan en traje de baño. El traje de gala se puede calificar en cualquier momento.
 type Seccion = "banio" | "gala";
 type Puntajes = Record<string, number>;
 type PuntajesPorSeccion = Record<Seccion, Puntajes>;
@@ -19,6 +20,9 @@ const ETIQUETA: Record<Seccion, string> = {
   gala: "Traje de gala",
 };
 
+const FILAS_INICIALES = 30;
+const FILAS_POR_PAGINA = 20;
+
 function leerPuntajes(clave: string): Puntajes {
   try {
     const guardado = localStorage.getItem(clave);
@@ -28,6 +32,10 @@ function leerPuntajes(clave: string): Puntajes {
   }
 }
 
+function formato(valor: number | undefined, decimales = 1): string {
+  return valor === undefined ? "—" : valor.toFixed(decimales);
+}
+
 export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
   const [seccion, setSeccion] = useState<Seccion>("banio");
   const [indice, setIndice] = useState(0);
@@ -35,6 +43,7 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
   const [entrada, setEntrada] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [listo, setListo] = useState(false);
+  const [visibles, setVisibles] = useState(FILAS_INICIALES);
 
   // Recupera los puntajes guardados en este navegador.
   useEffect(() => {
@@ -52,6 +61,23 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
     localStorage.setItem(CLAVE_STORAGE.gala, JSON.stringify(puntajes.gala));
   }, [puntajes, listo]);
 
+  // Total = promedio de baño y gala. Solo tienen total las candidatas con ambos puntajes.
+  // Se ordena de mayor a menor total; las que aún no tienen total van al final, en orden de desfile.
+  const filas = useMemo(() => {
+    const base = candidatas.map((c) => {
+      const banio = puntajes.banio[c.id];
+      const gala = puntajes.gala[c.id];
+      const total = banio !== undefined && gala !== undefined ? (banio + gala) / 2 : undefined;
+      return { candidata: c, banio, gala, total };
+    });
+    return base.sort((a, b) => {
+      if (a.total !== undefined && b.total !== undefined) return b.total - a.total;
+      if (a.total !== undefined) return -1;
+      if (b.total !== undefined) return 1;
+      return 0;
+    });
+  }, [candidatas, puntajes]);
+
   const actual = candidatas[indice];
 
   // Al cambiar de candidata o de sección, muestra el puntaje guardado (si existe).
@@ -62,9 +88,6 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
     setError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indice, seccion, actual?.id, listo]);
-
-  // El traje de gala está disponible en cualquier momento.
-  const galaDisponible = listo;
 
   if (candidatas.length === 0) {
     return (
@@ -97,6 +120,10 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
 
   const progreso = ((indice + 1) / candidatas.length) * 100;
   const banioActual = actual ? puntajes.banio[actual.id] : undefined;
+  const posicionTotal = new Map<string, number>();
+  filas.forEach((f, i) => {
+    if (f.total !== undefined) posicionTotal.set(f.candidata.id, i + 1);
+  });
 
   return (
     <div className="space-y-10">
@@ -114,13 +141,12 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
         </button>
         <button
           type="button"
-          onClick={() => galaDisponible && cambiarSeccion("gala")}
-          disabled={!galaDisponible}
+          onClick={() => cambiarSeccion("gala")}
           className={`rounded-full px-5 py-2 font-semibold transition ${
             seccion === "gala"
               ? "bg-[#facc15] text-black"
               : "border border-white/15 text-white/80 hover:border-white"
-          } disabled:opacity-30`}
+          }`}
         >
           Traje de gala
         </button>
@@ -159,7 +185,7 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
               <span className="rounded-full bg-white/10 px-3 py-1 text-white/80">
                 Baño:{" "}
                 <span className="font-black tabular-nums text-[#facc15]">
-                  {banioActual !== undefined ? banioActual.toFixed(1) : "—"}
+                  {formato(banioActual)}
                 </span>
               </span>
             )}
@@ -243,34 +269,56 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
 
       <section>
         <h3 className="mb-4 text-2xl font-black uppercase">Calificaciones</h3>
-        <ol className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {candidatas.map((c, posicion) => (
-            <li
-              key={c.id}
-              className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/50 px-5 py-3 backdrop-blur"
+
+        <ul className="space-y-2">
+          <li className="grid grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_4.5rem_5.5rem] gap-2 px-4 text-xs uppercase tracking-widest text-white/50">
+            <span>#</span>
+            <span>País</span>
+            <span className="text-right">Baño</span>
+            <span className="text-right">Gala</span>
+            <span className="text-right">Total</span>
+          </li>
+
+          {filas.slice(0, visibles).map(({ candidata, banio, gala, total }) => {
+            const url = urlBandera(candidata.pais);
+            const posicion = posicionTotal.get(candidata.id);
+            return (
+              <li
+                key={candidata.id}
+                className="grid grid-cols-[2.5rem_minmax(0,1fr)_4.5rem_4.5rem_5.5rem] items-center gap-2 rounded-2xl border border-white/10 bg-black/50 px-4 py-3 backdrop-blur transition-all duration-500"
+              >
+                <span className="font-black text-[#ed1c24]">{posicion ?? "—"}</span>
+                <span className="flex min-w-0 items-center gap-3">
+                  {url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={url} alt="" className="h-5 w-7 flex-none rounded-sm object-cover" />
+                  )}
+                  <span className="truncate font-semibold">{candidata.pais}</span>
+                </span>
+                <span className="text-right tabular-nums text-white/80">{formato(banio)}</span>
+                <span className="text-right tabular-nums text-white/80">{formato(gala)}</span>
+                <span className="text-right text-lg font-black tabular-nums text-[#facc15]">
+                  {formato(total, 2)}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <p className="text-sm text-white/50">
+            Mostrando {Math.min(visibles, filas.length)} de {filas.length}
+          </p>
+          {visibles < filas.length && (
+            <button
+              type="button"
+              onClick={() => setVisibles((v) => v + FILAS_POR_PAGINA)}
+              className="rounded-full border border-white/15 px-6 py-2 font-semibold text-white/80 transition hover:border-white"
             >
-              <span className="min-w-0">
-                <span className="mr-3 font-black text-[#ed1c24]">{posicion + 1}</span>
-                <span className="font-semibold">{c.nombre}</span>{" "}
-                <span className="text-white/50">({c.pais})</span>
-              </span>
-              <span className="ml-4 flex-none text-right text-sm tabular-nums">
-                <span className="block text-white/60">
-                  Baño{" "}
-                  <span className="font-black text-[#facc15]">
-                    {puntajes.banio[c.id]?.toFixed(1) ?? "—"}
-                  </span>
-                </span>
-                <span className="block text-white/60">
-                  Gala{" "}
-                  <span className="font-black text-[#facc15]">
-                    {puntajes.gala[c.id]?.toFixed(1) ?? "—"}
-                  </span>
-                </span>
-              </span>
-            </li>
-          ))}
-        </ol>
+              Ver más
+            </button>
+          )}
+        </div>
       </section>
     </div>
   );
