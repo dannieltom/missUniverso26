@@ -140,7 +140,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Islas Turcas y Caicos', 'Turks and Caicos', 'Caribe', 'Selena Grant', 'Miss Universe Turks and Caicos 2026', '/fotos/turks-and-caicos.jpg'),
 ('Uganda', 'Uganda', 'Africa', 'Mitchelle Daka', 'Miss Universe Uganda 2026', '/fotos/uganda.jpg'),
 ('Ucrania', 'Ukraine', 'Europa', 'Anna Nikonova', 'Miss Universe Ukraine 2026', '/fotos/ukraine.jpg'),
-('Uruguay', 'Uruguay', 'America', 'Lucía Piñeyro Lima', 'Miss Universo Uruguay 2026', null),
+('Uruguay', 'Uruguay', 'America', 'Lucía Piñeyro Lima', 'Miss Universo Uruguay 2026', '/fotos/uruguay.jpg'),
 ('Islas Vírgenes de los EE. UU.', 'US Virgin Islands', 'Caribe', 'Jenna-Monét Queeley', 'Miss Universe U.S. Virgin Islands 2026', '/fotos/us-virgin-islands.jpg'),
 ('Estados Unidos', 'USA', 'America', 'Justus Anye Coleman Kelley', 'Miss USA 2026', '/fotos/usa.jpg'),
 ('Venezuela', 'Venezuela', 'America', 'Clara Vegas Goetz', 'Miss Universo Venezuela 2025', null),
