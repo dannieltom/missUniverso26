@@ -4,5 +4,3 @@ node_modules/
 .env.local
 .DS_Store
 
-# Video oficial del evento: solo local, no se publica en el repositorio
-public/video/
