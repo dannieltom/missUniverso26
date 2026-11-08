@@ -181,7 +181,15 @@ export function TopEtapa({
     }
     try {
       const guardado = localStorage.getItem(clavePick(clave));
-      setMiTop(guardado ? (JSON.parse(guardado) as string[]) : []);
+      const lista = guardado ? (JSON.parse(guardado) as string[]) : [];
+      setMiTop(lista);
+      // Sube lo que tengas en este navegador a la base de datos (el ranking lee de ahí).
+      if (lista.length > 0) {
+        void guardarParticipacion(
+          clave,
+          lista.map((id) => ({ candidata_id: id })),
+        );
+      }
     } catch {
       setMiTop([]);
     }
