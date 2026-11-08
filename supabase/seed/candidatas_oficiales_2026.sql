@@ -38,7 +38,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Botswana', 'Botswana', 'Africa', 'Dabilo Moses', 'Miss Universe Botswana 2026', '/fotos/botswana.jpg'),
 ('Brasil', 'Brazil', 'America', 'Marcella Kozinski de Barros', 'Miss Universo Brasil 2026', '/fotos/brasil.jpg'),
 ('Islas Vírgenes Británicas', 'British Virgin Islands', 'America', 'Orealia Thomas', 'Miss Universe British Virgin Islands 2026', '/fotos/british-virgin-islands.jpg'),
-(null, 'Bulgaria', 'Europa', 'Anna Maria Babau', 'Miss Universe Bulgaria 2026', null),
+(null, 'Bulgaria', 'Europa', 'Anna Maria Babau', 'Miss Universe Bulgaria 2026', '/fotos/bulgaria.jpg'),
 ('Cabo Verde', 'Cabo Verde', 'Africa', 'Armandina Cunha', 'Miss Universe Cabo Verde 2026', '/fotos/cabo-verde.jpg'),
 ('Camboya', 'Cambodia', 'Asia', 'Than Rthna', 'Miss Universe Cambodia 2026', '/fotos/camboya.jpg'),
 ('Camerún', 'Cameroon', 'Africa', 'Audrey Moutongo Black', 'Miss Cameroon 2025', '/fotos/camerun.jpg'),
