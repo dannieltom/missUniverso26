@@ -8,9 +8,10 @@
 --  2) Agrega las que faltan, con su nombre oficial cuando se conoce.
 --  3) Elimina las que no están en la lista oficial (por ejemplo Maldivas y Níger).
 
-drop table if exists oficial;
+do $$
+begin
 
-create table oficial (
+create temp table oficial (
   pais_anterior text,
   pais text not null,
   region text not null,
@@ -165,6 +166,8 @@ delete from candidatas c
 where not exists (select 1 from oficial o where o.pais = c.pais);
 
 drop table oficial;
+
+end $$;
 
 -- Verificación: debe devolver 125.
 select count(*) as total_candidatas from candidatas;
