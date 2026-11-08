@@ -110,6 +110,12 @@ export function ComparacionTop({ candidatas }: { candidatas: Candidata[] }) {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={bandera} alt="" className="h-5 w-7 flex-none rounded-sm object-cover" />
                     )}
+                    {c.foto_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.foto_url} alt="" className="h-10 w-8 flex-none rounded-md object-cover" />
+                    ) : (
+                      <span className="h-10 w-8 flex-none rounded-md bg-white/10" />
+                    )}
                     <span className="font-semibold">{c.pais}</span>
                   </li>
                 );
@@ -133,6 +139,12 @@ export function ComparacionTop({ candidatas }: { candidatas: Candidata[] }) {
                   {bandera && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={bandera} alt="" className="h-5 w-7 flex-none rounded-sm object-cover" />
+                  )}
+                  {c.foto_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.foto_url} alt="" className="h-10 w-8 flex-none rounded-md object-cover" />
+                  ) : (
+                    <span className="h-10 w-8 flex-none rounded-md bg-white/10" />
                   )}
                   <span className="flex-1 font-semibold">{c.pais}</span>
                   <span
