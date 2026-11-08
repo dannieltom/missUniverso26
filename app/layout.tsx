@@ -14,7 +14,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        {children}
+        <footer className="px-4 pb-6 pt-2 text-center text-xs text-white/50">
+          Desarrollado por Danniel Torres · Datos oficiales: sitio web oficial de Miss Universo
+        </footer>
+      </body>
     </html>
   );
 }
