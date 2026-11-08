@@ -117,7 +117,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Polonia', 'Poland', 'Europa', 'Vivica Lewandowski', 'Miss Universe Poland 2026', null),
 ('Portugal', 'Portugal', 'Europa', 'Isabela Santos', 'Miss Universe Portugal 2026', '/fotos/portugal.jpg'),
 ('Puerto Rico', 'Puerto Rico', 'Caribe', 'Jennifer Barreto', 'Miss Universe Puerto Rico 2026', '/fotos/puerto-rico.jpg'),
-('República del Congo', 'Republic of the Congo', 'Africa', 'Georgina Kambongo', 'Miss Universe République du Congo 2026', null),
+('República del Congo', 'Republic of the Congo', 'Africa', 'Georgina Kambongo', 'Miss Universe République du Congo 2026', '/fotos/republic-of-the-congo.jpg'),
 ('Reunión', 'Reunion Island', 'Africa', 'Abigaëlle Tailamée', 'Miss Universe Reunion 2026', '/fotos/reunion-island.jpg'),
 ('Rumania', 'Romania', 'Europa', 'Sabina Gabriela Parmac', 'Miss Universe Romania 2026', null),
 ('Rusia', 'Russia', 'Europa', 'Aleksandra Stashkevich', 'Miss Universe Russia 2026', null),
