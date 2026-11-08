@@ -224,12 +224,29 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
     }
   }
 
-  // En /admin, comprueba si la cuenta de Google con la que entraste es la de administrador.
+  // Comprueba en silencio si la cuenta de Google con la que entraste es la de administrador.
+  async function comprobarAdmin(): Promise<boolean> {
+    const db = supabaseNavegador();
+    if (!db) return false;
+    const { data } = await db.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return false;
+    try {
+      const res = await fetch("/api/top-oficial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ anio: ANIO, corte, accion: "verificar" }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  }
+
   useEffect(() => {
-    if (!admin) return;
-    enviarAdmin({ accion: "verificar" }).then((ok) => setAutorizado(ok));
+    comprobarAdmin().then((ok) => setAutorizado(ok));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [admin]);
+  }, []);
 
   const completoPropio = propio.length >= tamanoPropio;
   const completoOficial = filas.length >= corte;
@@ -247,7 +264,7 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
         <ListaTop ids={filas} porId={porId} />
       </div>
 
-      {!admin && (
+      {!admin && autorizado !== true && (
         <div className="mt-8 border-t border-white/10 pt-6">
           <button
             type="button"
@@ -323,7 +340,7 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
         </div>
       )}
 
-      {admin && autorizado === true && (
+      {autorizado === true && (
         <div className="mt-8 space-y-5 border-t border-white/10 pt-6">
 
           <div className="flex flex-wrap items-end gap-3">
