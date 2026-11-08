@@ -7,22 +7,30 @@ import { supabaseNavegador } from "@/lib/supabase-navegador";
 
 type Fila = { candidata_id: string; orden: number };
 
-// Top oficial compartido: todos lo ven en vivo. El administrador (con PIN) lo va llenando.
+// Top oficial compartido: todos lo ven en vivo y solo el administrador (con PIN) lo cambia.
+// Cualquiera puede activar "Mi top" para digitar su propia versión, que solo lo afecta a él.
 export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }) {
   const [anio, setAnio] = useState(2026);
   const [corte, setCorte] = useState(12);
   const [filas, setFilas] = useState<Fila[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // Admin
+  // Mi top (solo en este navegador)
+  const [propioActivo, setPropioActivo] = useState(false);
+  const [propio, setPropio] = useState<string[]>([]);
+  const [eleccionPropia, setEleccionPropia] = useState("");
+
+  // Administrador
   const [pin, setPin] = useState("");
   const [eleccion, setEleccion] = useState("");
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [trabajando, setTrabajando] = useState(false);
 
+  const claveLocal = `mu26-top-propio-${anio}-${corte}`;
+  const claveActivo = `mu26-top-propio-activo-${anio}-${corte}`;
   const porId = new Map(candidatas.map((c) => [c.id, c]));
 
-  // Carga el top del año y corte elegidos, y se actualiza cuando cambia en la base de datos.
+  // Carga el top oficial y se actualiza en vivo.
   useEffect(() => {
     const db = supabaseNavegador();
     if (!db) {
@@ -58,6 +66,31 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
     };
   }, [anio, corte]);
 
+  // Carga "Mi top" de este navegador para el año y corte elegidos.
+  useEffect(() => {
+    try {
+      setPropioActivo(localStorage.getItem(claveActivo) === "1");
+      const guardado = localStorage.getItem(claveLocal);
+      setPropio(guardado ? (JSON.parse(guardado) as string[]) : []);
+    } catch {
+      setPropio([]);
+    }
+  }, [claveLocal, claveActivo]);
+
+  function guardarPropio(nuevo: string[]) {
+    setPropio(nuevo);
+    localStorage.setItem(claveLocal, JSON.stringify(nuevo));
+  }
+
+  function activarPropio(activo: boolean) {
+    // Al activar por primera vez, arranca copiando el oficial para no empezar en blanco.
+    if (activo && propio.length === 0 && filas.length > 0) {
+      guardarPropio(filas.map((f) => f.candidata_id));
+    }
+    setPropioActivo(activo);
+    localStorage.setItem(claveActivo, activo ? "1" : "0");
+  }
+
   async function accion(payload: { accion: "agregar" | "quitar" | "limpiar"; candidata_id?: string }) {
     setTrabajando(true);
     setMensaje(null);
@@ -77,15 +110,26 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
     }
   }
 
-  const yaEnTop = new Set(filas.map((f) => f.candidata_id));
-  const disponibles = candidatas.filter((c) => !yaEnTop.has(c.id));
-  const completo = filas.length >= corte;
+  // Lo que ve esta persona: su top personal si lo activó, o el oficial en vivo.
+  const mostrar: Fila[] = propioActivo
+    ? propio.map((id, i) => ({ candidata_id: id, orden: i + 1 }))
+    : filas;
+
+  const yaEnTop = new Set(mostrar.map((f) => f.candidata_id));
+  const disponiblesOficial = candidatas.filter((c) => !new Set(filas.map((f) => f.candidata_id)).has(c.id));
+  const disponiblesPropio = candidatas.filter((c) => !yaEnTop.has(c.id));
+  const completoOficial = filas.length >= corte;
+  const completoPropio = propio.length >= corte;
 
   return (
     <div className="rounded-3xl border border-white/10 bg-black/50 p-6 backdrop-blur md:p-8">
-      <h4 className="text-xl font-black uppercase">Top {corte} oficial {anio}</h4>
+      <h4 className="text-xl font-black uppercase">
+        Top {corte} {propioActivo ? "mío" : "oficial"} {anio}
+      </h4>
       <p className="mt-2 text-sm text-white/50">
-        Se actualiza en vivo para todos. Marcadas: {filas.length} de {corte}.
+        {propioActivo
+          ? `Tu versión personal, solo en este navegador. Marcadas: ${propio.length} de ${corte}.`
+          : `Oficial, en vivo para todos. Marcadas: ${filas.length} de ${corte}.`}
       </p>
 
       <div className="mt-4 flex flex-wrap items-end gap-4">
@@ -108,13 +152,20 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
             className="w-28 rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-white outline-none focus:border-[#facc15]"
           />
         </label>
+        <button
+          type="button"
+          onClick={() => activarPropio(!propioActivo)}
+          className="rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white/80 transition hover:border-white"
+        >
+          {propioActivo ? "Volver al top oficial" : "Digitar mi propio top"}
+        </button>
       </div>
 
       {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
-      {filas.length > 0 ? (
+      {mostrar.length > 0 ? (
         <ol className="mt-6 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-          {filas.map((f) => {
+          {mostrar.map((f) => {
             const c = porId.get(f.candidata_id);
             if (!c) return null;
             const bandera = urlBandera(c.pais);
@@ -131,12 +182,76 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
           })}
         </ol>
       ) : (
-        <p className="mt-6 text-sm text-white/50">Todavía no hay candidatas marcadas como oficiales.</p>
+        <p className="mt-6 text-sm text-white/50">Todavía no hay candidatas marcadas.</p>
+      )}
+
+      {propioActivo && (
+        <div className="mt-6 space-y-4 rounded-2xl border border-white/10 p-4">
+          <p className="text-sm font-semibold uppercase tracking-widest text-white/70">Mi top (solo para mí)</p>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="flex flex-col gap-1 text-sm text-white/70">
+              Agregar candidata
+              <select
+                value={eleccionPropia}
+                onChange={(e) => setEleccionPropia(e.target.value)}
+                className="w-72 rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-white outline-none focus:border-[#facc15]"
+              >
+                <option value="" className="bg-black">Elige una candidata</option>
+                {disponiblesPropio.map((c) => (
+                  <option key={c.id} value={c.id} className="bg-black">
+                    {c.pais} · {c.nombre}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              disabled={!eleccionPropia || completoPropio}
+              onClick={() => {
+                guardarPropio([...propio, eleccionPropia]);
+                setEleccionPropia("");
+              }}
+              className="rounded-full bg-[#facc15] px-5 py-2 font-bold text-black transition hover:brightness-110 disabled:opacity-40"
+            >
+              Agregar a mi top
+            </button>
+            <button
+              type="button"
+              disabled={propio.length === 0}
+              onClick={() => guardarPropio([])}
+              className="rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white/80 transition hover:border-white disabled:opacity-40"
+            >
+              Vaciar mi top
+            </button>
+          </div>
+          {propio.length > 0 && (
+            <ul className="space-y-2">
+              {propio.map((id, i) => {
+                const c = porId.get(id);
+                if (!c) return null;
+                return (
+                  <li key={id} className="flex items-center justify-between gap-3 text-sm">
+                    <span>
+                      {i + 1}. {c.pais}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => guardarPropio(propio.filter((x) => x !== id))}
+                      className="rounded-full border border-white/15 px-3 py-1 text-xs text-white/70 transition hover:border-white"
+                    >
+                      Quitar
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       )}
 
       <details className="mt-8 rounded-2xl border border-white/10 p-4">
         <summary className="cursor-pointer text-sm font-semibold uppercase tracking-widest text-white/70">
-          Administrador
+          Administrador (cambia el oficial para todos)
         </summary>
 
         <div className="mt-4 space-y-4">
@@ -159,7 +274,7 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
                 className="w-72 rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-white outline-none focus:border-[#facc15]"
               >
                 <option value="" className="bg-black">Elige una candidata</option>
-                {disponibles.map((c) => (
+                {disponiblesOficial.map((c) => (
                   <option key={c.id} value={c.id} className="bg-black">
                     {c.pais} · {c.nombre}
                   </option>
@@ -168,11 +283,11 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
             </label>
             <button
               type="button"
-              disabled={!pin || !eleccion || completo || trabajando}
+              disabled={!pin || !eleccion || completoOficial || trabajando}
               onClick={() => accion({ accion: "agregar", candidata_id: eleccion })}
               className="rounded-full bg-[#facc15] px-5 py-2 font-bold text-black transition hover:brightness-110 disabled:opacity-40"
             >
-              Agregar al top
+              Agregar al oficial
             </button>
             <button
               type="button"
