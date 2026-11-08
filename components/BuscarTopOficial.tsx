@@ -31,7 +31,19 @@ export function BuscarTopOficial({ candidatas }: { candidatas: Candidata[] }) {
         body: JSON.stringify({ anio, cantidad, paises: candidatas.map((c) => c.pais) }),
       });
       const datos = (await res.json()) as Respuesta;
-      setRespuesta(res.ok ? datos : { ...datos, top: null, fuentes: [], noReconocidos: [], estado: "sin_resultado", motivo: datos.error ?? "Error" });
+      const detalle = (datos as unknown as { detalle?: string }).detalle;
+      setRespuesta(
+        res.ok
+          ? datos
+          : {
+              ...datos,
+              top: null,
+              fuentes: [],
+              noReconocidos: [],
+              estado: "sin_resultado",
+              motivo: `${datos.error ?? "Error"}${detalle ? ` Detalle de Google: ${detalle.slice(0, 400)}` : ""}`,
+            },
+      );
     } catch {
       setRespuesta({ top: null, fuentes: [], noReconocidos: [], estado: "sin_resultado", motivo: "No se pudo conectar con el servidor." });
     } finally {
