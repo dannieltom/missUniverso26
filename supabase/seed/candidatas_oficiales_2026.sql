@@ -29,7 +29,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Australia', 'Australia', 'Oceania', 'Caitlin Worthington', 'Miss Universe Australia 2026', '/fotos/australia.jpg'),
 ('Austria', 'Austria', 'Europa', 'Victoria Amerson', 'Miss Universe Austria 2026', '/fotos/austria.jpg'),
 ('Bahamas', 'Bahamas', 'Caribe', 'Shawndra Henfield', 'Miss Universe Bahamas 2026', '/fotos/bahamas.jpg'),
-(null, 'Bangladesh', 'Asia', 'Bangladesh', null, null),
+(null, 'Bangladesh', 'Asia', 'Bangladesh', null, '/fotos/bangladesh.jpg'),
 ('Bielorrusia', 'Belarus', 'Europa', 'Aliya Korotkaya', 'Miss Universe Belarus 2026', '/fotos/belarus.jpg'),
 ('Bélgica', 'Belgium', 'Europa', 'Olga Mariana Lombardo', 'Miss Belgium 2026', '/fotos/belgica.jpg'),
 ('Belice', 'Belize', 'America', 'Caleigh-Rose West', 'Miss Universe Belize 2026', '/fotos/belice.jpg'),
