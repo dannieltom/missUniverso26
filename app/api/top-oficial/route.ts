@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 type Cuerpo = {
   pin: string;
-  accion: "agregar" | "quitar" | "limpiar" | "fijar_corte";
+  accion: "verificar" | "agregar" | "quitar" | "limpiar" | "fijar_corte";
   anio: number;
   corte: number;
   candidata_id?: string;
@@ -27,6 +27,11 @@ export async function POST(req: Request) {
 
   if (!pinValido(cuerpo.pin)) {
     return NextResponse.json({ error: "PIN incorrecto." }, { status: 401 });
+  }
+
+  // Solo comprueba el PIN, sin cambiar nada.
+  if (cuerpo.accion === "verificar") {
+    return NextResponse.json({ ok: true });
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -124,8 +124,9 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
   const [personalAbierto, setPersonalAbierto] = useState(false);
   const [propio, setPropio] = useState<string[]>([]);
 
-  // Administrador
+  // Administrador (en modo admin no aparece "Hacer top oficial", porque ya eres tú quien lo define)
   const [adminAbierto, setAdminAbierto] = useState(false);
+  const [esAdmin, setEsAdmin] = useState(false);
   const [pin, setPin] = useState("");
   const [cortePendiente, setCortePendiente] = useState(CORTE_POR_DEFECTO);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -171,6 +172,11 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
       cancelado = true;
       db.removeChannel(canal);
     };
+  }, []);
+
+  // Recuerda en este navegador si ya entraste como administrador.
+  useEffect(() => {
+    setEsAdmin(localStorage.getItem("mu26-admin") === "1");
   }, []);
 
   // Mi top de este navegador para el tamaño actual.
@@ -227,6 +233,7 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
         <ListaTop ids={filas} porId={porId} />
       </div>
 
+      {!esAdmin && (
       <div className="mt-8 border-t border-white/10 pt-6">
         <button
           type="button"
@@ -260,6 +267,7 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
           </div>
         )}
       </div>
+      )}
 
       <details
         open={adminAbierto}
@@ -271,15 +279,45 @@ export function TopOficialCompartido({ candidatas }: { candidatas: Candidata[] }
         </summary>
 
         <div className="mt-4 space-y-5">
-          <label className="flex flex-col gap-1 text-sm text-white/70">
-            PIN
-            <input
-              type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              className="w-56 rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-white outline-none focus:border-[#facc15]"
-            />
-          </label>
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="flex flex-col gap-1 text-sm text-white/70">
+              PIN
+              <input
+                type="password"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                className="w-56 rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-white outline-none focus:border-[#facc15]"
+              />
+            </label>
+            {esAdmin ? (
+              <button
+                type="button"
+                onClick={() => {
+                  localStorage.removeItem("mu26-admin");
+                  setEsAdmin(false);
+                  setPin("");
+                }}
+                className="rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white/80 transition hover:border-white"
+              >
+                Salir del modo admin
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled={!pin || trabajando}
+                onClick={async () => {
+                  const ok = await enviarAdmin({ accion: "verificar" });
+                  if (ok) {
+                    localStorage.setItem("mu26-admin", "1");
+                    setEsAdmin(true);
+                  }
+                }}
+                className="rounded-full bg-[#facc15] px-5 py-2 font-bold text-black transition hover:brightness-110 disabled:opacity-40"
+              >
+                Entrar como administrador
+              </button>
+            )}
+          </div>
 
           <div className="flex flex-wrap items-end gap-3">
             <label className="flex flex-col gap-1 text-sm text-white/70">
