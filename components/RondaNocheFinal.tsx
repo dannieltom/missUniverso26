@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { PUNTAJE_MAX, PUNTAJE_MIN, parsearPuntaje } from "@/lib/tipos";
 import { urlBandera } from "@/lib/banderas";
+import { truncarTexto } from "@/lib/formato";
 
 // Noche final en cascada:
 // 1. Tu top N1 sale de tu preliminar. Calificas baño y gala. Cuando se anuncia el top N1 oficial, se compara.
@@ -49,7 +50,7 @@ function leerJSON<T>(clave: string, respaldo: T): T {
 }
 
 function formato(valor: number | undefined, decimales = 1): string {
-  return valor === undefined ? "—" : valor.toFixed(decimales);
+  return valor === undefined ? "—" : truncarTexto(valor, decimales);
 }
 
 function Bandera({ pais }: { pais: string }) {

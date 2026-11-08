@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { PUNTAJE_MAX, PUNTAJE_MIN, parsearPuntaje } from "@/lib/tipos";
 import { urlBandera } from "@/lib/banderas";
+import { truncarTexto } from "@/lib/formato";
 
 // Primero desfilan en traje de baño. El traje de gala se puede calificar en cualquier momento.
 type Seccion = "banio" | "gala";
@@ -33,7 +34,7 @@ function leerPuntajes(clave: string): Puntajes {
 }
 
 function formato(valor: number | undefined, decimales = 1): string {
-  return valor === undefined ? "—" : valor.toFixed(decimales);
+  return valor === undefined ? "—" : truncarTexto(valor, decimales);
 }
 
 export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
