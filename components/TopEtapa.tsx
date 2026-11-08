@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { urlBandera } from "@/lib/banderas";
 import { CLAVE_BANIO, CLAVE_GALA, clavePick, type EtapaClave } from "@/lib/etapas";
+import { guardarParticipacion } from "@/lib/participacion";
 
 function sinAcentos(texto: string): string {
   return texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -170,6 +171,12 @@ export function TopEtapa({
         .sort((a, b) => b.total - a.total)
         .map((x) => x.id);
       setMiTop(ordenados.slice(0, tamano));
+      if (ordenados.length > 0) {
+        void guardarParticipacion(
+          "inicial",
+          ordenados.slice(0, tamano).map((id) => ({ candidata_id: id })),
+        );
+      }
       return;
     }
     try {
@@ -183,6 +190,10 @@ export function TopEtapa({
   function guardarMiTop(nuevo: string[]) {
     setMiTop(nuevo);
     if (!esInicial) localStorage.setItem(clavePick(clave), JSON.stringify(nuevo));
+    void guardarParticipacion(
+      clave,
+      nuevo.map((id) => ({ candidata_id: id })),
+    );
   }
 
   const enOficial = new Set(oficial);

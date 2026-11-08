@@ -4,12 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { supabaseNavegador } from "@/lib/supabase-navegador";
 import { ANIO, ETAPA_CLAVES, TAMANOS_POR_DEFECTO, etapaInfo, type EtapaClave } from "@/lib/etapas";
+import { PUNTOS_POR_ETAPA } from "@/lib/puntajes";
 import { TopEtapa } from "@/components/TopEtapa";
 import { RondaFinal } from "@/components/RondaFinal";
+import { RankingSala } from "@/components/RankingSala";
 
 type Vista = EtapaClave | "final";
 const VISTAS: Vista[] = [...ETAPA_CLAVES, "final"];
-
+const CLAVE_SALA = "mu26-sala-actual";
 const VACIO_OFICIALES: Record<EtapaClave, string[]> = { inicial: [], top10: [], top5: [] };
 
 // admin = true: página /admin, donde el administrador entra con su cuenta de Google.
@@ -17,13 +19,20 @@ export function RondaNocheFinal({ candidatas, admin = false }: { candidatas: Can
   const [vista, setVista] = useState<Vista>("inicial");
   const [tamanos, setTamanos] = useState<Record<EtapaClave, number>>(TAMANOS_POR_DEFECTO);
   const [oficiales, setOficiales] = useState<Record<EtapaClave, string[]>>(VACIO_OFICIALES);
+  const [oficialFinal, setOficialFinal] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   // null = comprobando; true/false = si la cuenta de Google es la de administrador.
   const [autorizado, setAutorizado] = useState<boolean | null>(null);
   const [trabajando, setTrabajando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
+  // Sala a la que perteneces (se configura después, al unirte a una sala).
+  const [salaId, setSalaId] = useState<string | null>(null);
 
   const porId = useMemo(() => new Map(candidatas.map((c) => [c.id, c])), [candidatas]);
+
+  useEffect(() => {
+    setSalaId(localStorage.getItem(CLAVE_SALA));
+  }, []);
 
   // Tamaños y tops oficiales de todas las etapas, en vivo.
   useEffect(() => {
@@ -53,12 +62,16 @@ export function RondaNocheFinal({ candidatas, admin = false }: { candidatas: Can
       setTamanos(nuevosTamanos);
 
       const nuevosOficiales: Record<EtapaClave, string[]> = { inicial: [], top10: [], top5: [] };
+      const nuevaFinal: string[] = [];
       for (const fila of (filas.data ?? []) as { etapa: string; candidata_id: string }[]) {
-        if (ETAPA_CLAVES.includes(fila.etapa as EtapaClave)) {
+        if (fila.etapa === "final") {
+          nuevaFinal.push(fila.candidata_id);
+        } else if (ETAPA_CLAVES.includes(fila.etapa as EtapaClave)) {
           nuevosOficiales[fila.etapa as EtapaClave].push(fila.candidata_id);
         }
       }
       setOficiales(nuevosOficiales);
+      setOficialFinal(nuevaFinal);
     }
 
     cargar();
@@ -96,7 +109,7 @@ export function RondaNocheFinal({ candidatas, admin = false }: { candidatas: Can
     comprobar().then((ok) => setAutorizado(ok));
   }, []);
 
-  async function enviarAdmin(etapa: EtapaClave, payload: Record<string, unknown>): Promise<boolean> {
+  async function enviarAdmin(etapa: string, payload: Record<string, unknown>): Promise<boolean> {
     setTrabajando(true);
     setMensaje(null);
     try {
@@ -186,8 +199,26 @@ export function RondaNocheFinal({ candidatas, admin = false }: { candidatas: Can
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
+      {vista !== "final" && (
+        <p className="text-sm text-white/60">Cada acierto vale {PUNTOS_POR_ETAPA[vista]} puntos.</p>
+      )}
+
       {vista === "final" ? (
-        <RondaFinal porId={porId} top5={oficiales.top5} />
+        <div className="space-y-6">
+          {soyAdmin && (
+            <RondaFinal
+              porId={porId}
+              top5={oficiales.top5}
+              oficialGuardado={oficialFinal}
+              onGuardarOficial={(ids) => {
+                void enviarAdmin("final", { accion: "fijar_orden", ids });
+              }}
+              trabajando={trabajando}
+              mensaje={mensaje}
+            />
+          )}
+          <RondaFinal porId={porId} top5={oficiales.top5} />
+        </div>
       ) : (
         <TopEtapa
           key={vista}
@@ -204,6 +235,8 @@ export function RondaNocheFinal({ candidatas, admin = false }: { candidatas: Can
           enviarAdmin={(payload) => enviarAdmin(vista, payload)}
         />
       )}
+
+      {salaId && <RankingSala salaId={salaId} />}
 
       <div className="flex justify-end">
         {vista === "final" ? (
