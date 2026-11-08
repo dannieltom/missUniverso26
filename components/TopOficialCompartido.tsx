@@ -125,6 +125,7 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
   // Hacer mi propio top (solo en este navegador, solo para el público)
   const [personalAbierto, setPersonalAbierto] = useState(false);
   const [propio, setPropio] = useState<string[]>([]);
+  const [tamanoPropio, setTamanoPropio] = useState(CORTE_POR_DEFECTO);
 
   // Administrador
   const [pin, setPin] = useState("");
@@ -133,7 +134,7 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
   const [trabajando, setTrabajando] = useState(false);
 
   const porId = useMemo(() => new Map(candidatas.map((c) => [c.id, c])), [candidatas]);
-  const clavePropio = `mu26-top-propio-${ANIO}-${corte}`;
+  const clavePropio = `mu26-top-propio-${ANIO}-${tamanoPropio}`;
 
   // Tamaño y top oficial, en vivo.
   useEffect(() => {
@@ -174,6 +175,12 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
     };
   }, []);
 
+  // Tamaño elegido por esta persona para su propio top.
+  useEffect(() => {
+    const guardado = Number(localStorage.getItem(`mu26-top-propio-tamano-${ANIO}`));
+    if (guardado >= 1) setTamanoPropio(guardado);
+  }, []);
+
   // Mi top de este navegador para el tamaño actual.
   useEffect(() => {
     try {
@@ -212,7 +219,7 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
     }
   }
 
-  const completoPropio = propio.length >= corte;
+  const completoPropio = propio.length >= tamanoPropio;
   const completoOficial = filas.length >= corte;
 
   return (
@@ -240,8 +247,24 @@ export function TopOficialCompartido({ candidatas, admin = false }: { candidatas
 
           {personalAbierto && (
             <div className="mt-5 space-y-4 rounded-2xl border border-white/10 p-5">
+              <div className="flex flex-wrap items-end gap-3">
+                <label className="flex flex-col gap-1 text-sm text-white/70">
+                  Tamaño de mi top
+                  <input
+                    type="number"
+                    min={1}
+                    value={tamanoPropio}
+                    onChange={(e) => {
+                      const n = Math.max(1, Number(e.target.value));
+                      setTamanoPropio(n);
+                      localStorage.setItem(`mu26-top-propio-tamano-${ANIO}`, String(n));
+                    }}
+                    className="w-28 rounded-xl border border-white/15 bg-black/60 px-3 py-2 text-white outline-none focus:border-[#facc15]"
+                  />
+                </label>
+              </div>
               <p className="text-sm text-white/60">
-                Tu versión personal del top {corte}. Solo la ves tú, en este navegador. Marcadas: {propio.length} de {corte}.
+                Tu versión personal del top {tamanoPropio}. Solo la ves tú, en este navegador. Marcadas: {propio.length} de {tamanoPropio}.
               </p>
               <Buscador
                 candidatas={candidatas}
