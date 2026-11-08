@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { PUNTAJE_MAX, PUNTAJE_MIN, parsearPuntaje } from "@/lib/tipos";
 
@@ -63,11 +63,8 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indice, seccion, actual?.id, listo]);
 
-  const pendientesBanio = useMemo(
-    () => candidatas.filter((c) => puntajes.banio[c.id] === undefined).length,
-    [candidatas, puntajes.banio],
-  );
-  const galaDisponible = listo && pendientesBanio === 0;
+  // El traje de gala está disponible en cualquier momento.
+  const galaDisponible = listo;
 
   if (candidatas.length === 0) {
     return (
@@ -128,12 +125,6 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
           Traje de gala
         </button>
       </div>
-
-      {!galaDisponible && (
-        <p className="text-sm text-white/60">
-          Termina el traje de baño de todas las candidatas para empezar el de gala. Faltan {pendientesBanio}.
-        </p>
-      )}
 
       <div className="aparecer grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
         {/* Foto grande de la candidata */}
