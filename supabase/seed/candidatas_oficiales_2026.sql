@@ -60,7 +60,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('El Salvador', 'El Salvador', 'America', 'Sofía Córdova Moreno', 'Miss Universo El Salvador 2026', '/fotos/el-salvador.jpg'),
 ('Guinea Ecuatorial', 'Equatorial Guinea', 'Africa', 'Teresa Isabel Mbomio Ada', 'Miss Universe Guinea Ecuatorial 2026', null),
 ('Estonia', 'Estonia', 'Europa', 'Emili Denneng', 'Miss Universe Estonia 2025', '/fotos/estonia.jpg'),
-('Etiopía', 'Ethiopia', 'Africa', 'Bruktawit Belete Woldeyes', 'Miss Universe Ethiopia 2026', null),
+('Etiopía', 'Ethiopia', 'Africa', 'Bruktawit Belete Woldeyes', 'Miss Universe Ethiopia 2026', '/fotos/ethiopia.jpg'),
 ('Finlandia', 'Finland', 'Europa', 'Veera Grönlund', 'Miss Universe Finland 2026', null),
 ('Francia', 'France', 'Europa', 'Garance Authié', 'Miss Universe France 2026', null),
 ('Alemania', 'Germany', 'Europa', 'Celina Weil', 'Miss Universe Germany 2026', '/fotos/germany.jpg'),
