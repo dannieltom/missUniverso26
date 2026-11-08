@@ -5,6 +5,7 @@ import type { Candidata } from "@/lib/tipos";
 import { PUNTAJE_MAX, PUNTAJE_MIN, parsearPuntaje } from "@/lib/tipos";
 import { urlBandera } from "@/lib/banderas";
 import { truncarTexto } from "@/lib/formato";
+import { BuscarTopOficial } from "@/components/BuscarTopOficial";
 
 // Noche final en cascada:
 // 1. Tu top N1 sale de tu preliminar. Calificas baño y gala. Cuando se anuncia el top N1 oficial, se compara.
@@ -249,6 +250,8 @@ export function RondaNocheFinal({ candidatas }: { candidatas: Candidata[] }) {
 
   return (
     <div className="space-y-10">
+      <BuscarTopOficial candidatas={candidatas} />
+
       {/* Etapa 1: top N1 */}
       <section className="space-y-6">
         <div className="flex flex-wrap items-end gap-6">
