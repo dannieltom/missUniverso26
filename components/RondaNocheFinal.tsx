@@ -586,11 +586,12 @@ export function RondaNocheFinal({ candidatas }: { candidatas: Candidata[] }) {
           </div>
         )}
 
-        {oficial3.length === FINALISTAS && (
+        {oficial3.length > 0 && (
           <div className="space-y-4">
-            <h4 className="text-lg font-black uppercase">Respuesta final</h4>
+            <h4 className="text-lg font-black uppercase">Preguntas</h4>
             <p className="text-sm text-white/50">
-              Califica la respuesta final de cada finalista. Tu ganadora es la de mayor puntaje.
+              Califica las preguntas de cada finalista del top 5 oficial. Tu ganadora es la de mayor puntaje.
+              Marcadas: {oficial3.length} de {FINALISTAS}.
             </p>
             <ul className="space-y-2">
               {filasFinal.map(({ candidata, puntaje }) => (
