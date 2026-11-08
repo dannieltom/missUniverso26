@@ -29,7 +29,7 @@ const ETIQUETAS = {
 
 // Ajustes por país (códigos ISO alfa-3) donde la clasificación por UN no coincide con la usada en la app.
 const AJUSTES = {
-  MEX: "centroamerica", // México se trata como Centroamérica
+  MEX: "norteamerica", // México se trata como Norteamérica
   RUS: "asia",
   ARM: "europa",
   TUR: "asia",
