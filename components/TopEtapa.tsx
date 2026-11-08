@@ -303,12 +303,48 @@ export function TopEtapa({
                   Van {anterior!.cantidad} de {anterior!.tamano} en el {anterior!.etiqueta} oficial. Puedes elegir de las que ya salieron.
                 </p>
               )}
-              <Buscador
-                pool={pool}
-                excluir={new Set(picks)}
-                deshabilitado={picks.length >= tamano}
-                onElegir={(id) => guardarMiTop([...picks, id])}
-              />
+              <p className="text-sm text-white/70">
+                Toca las {tamano} que crees que entran. Llevas {picks.length} de {tamano}.
+              </p>
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {pool.map((c) => {
+                  const elegida = picks.includes(c.id);
+                  const lleno = picks.length >= tamano && !elegida;
+                  const bandera = urlBandera(c.pais);
+                  return (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        disabled={lleno}
+                        onClick={() =>
+                          guardarMiTop(elegida ? picks.filter((x) => x !== c.id) : [...picks, c.id])
+                        }
+                        className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left text-sm transition disabled:opacity-30 ${
+                          elegida ? "border-[#facc15] bg-[#facc15]/10" : "border-white/10 hover:border-white"
+                        }`}
+                      >
+                        <span className={`w-5 flex-none font-black ${elegida ? "text-[#facc15]" : "text-white/20"}`}>
+                          {elegida ? "✓" : "○"}
+                        </span>
+                        {bandera && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={bandera} alt="" className="h-5 w-7 flex-none rounded-sm object-cover" />
+                        )}
+                        {c.foto_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={c.foto_url} alt="" className="h-10 w-8 flex-none rounded-md object-cover" />
+                        ) : (
+                          <span className="h-10 w-8 flex-none rounded-md bg-white/10" />
+                        )}
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-semibold">{c.pais}</span>
+                          <span className="block truncate text-xs text-white/50">{c.nombre}</span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
             </>
           )}
           {picks.length > 0 && (
