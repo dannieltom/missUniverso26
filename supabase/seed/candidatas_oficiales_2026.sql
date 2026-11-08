@@ -113,7 +113,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Panamá', 'Panama', 'America', 'Gabriela Lineth González Del Valle', 'Miss Universo Panamá 2026', null),
 ('Paraguay', 'Paraguay', 'America', 'Gretha Milagros Estigarribia Matiauda', 'Miss Universo Paraguay 2026', null),
 ('Perú', 'Peru', 'America', 'Luren Leticia Márquez Canales', 'Miss Perú Universo 2026', null),
-('Filipinas', 'Philippines', 'Asia', 'Bea Millan-Windorski', 'Miss Universe Philippines 2026', null),
+('Filipinas', 'Philippines', 'Asia', 'Bea Millan-Windorski', 'Miss Universe Philippines 2026', '/fotos/philippines.jpg'),
 ('Polonia', 'Poland', 'Europa', 'Vivica Lewandowski', 'Miss Universe Poland 2026', null),
 ('Portugal', 'Portugal', 'Europa', 'Isabela Santos', 'Miss Universe Portugal 2026', null),
 ('Puerto Rico', 'Puerto Rico', 'Caribe', 'Jennifer Barreto', 'Miss Universe Puerto Rico 2026', null),
