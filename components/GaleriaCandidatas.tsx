@@ -1,39 +1,93 @@
 "use client";
 
 import { useState } from "react";
-import { REGIONES, type Candidata, type Region } from "@/lib/tipos";
+import mapa from "@/lib/mapa-subregiones.json";
+import { SUBREGIONES, subregionDePais, type SubregionId } from "@/lib/regiones";
+import type { Candidata } from "@/lib/tipos";
 
 /**
- * Galería de candidatas. Se elige una región (América, Caribe, Europa, África, Asia, Oceanía)
- * y solo se muestran las candidatas de esa región.
+ * Consulta de candidatas por región. Se toca una región en el mapa (o en los botones)
+ * y se muestran solo las candidatas de esa región.
  */
 export function GaleriaCandidatas({ candidatas }: { candidatas: Candidata[] }) {
-  const [regionActiva, setRegionActiva] = useState<Region>(REGIONES[0].clave);
-  const region = REGIONES.find((r) => r.clave === regionActiva) ?? REGIONES[0];
-  const grupo = candidatas.filter((c) => c.region === region.clave);
+  const [activa, setActiva] = useState<SubregionId>("america-sur");
+
+  const conteo = (id: SubregionId) =>
+    candidatas.filter((c) => subregionDePais(c.pais) === id).length;
+  const grupo = candidatas.filter((c) => subregionDePais(c.pais) === activa);
+  const nombreActiva = SUBREGIONES.find((s) => s.id === activa)?.nombre ?? "";
 
   return (
     <section className="mt-20 space-y-8">
-      <h2 className="text-4xl font-black uppercase sm:text-5xl">Candidatas</h2>
+      <h2 className="text-4xl font-black uppercase sm:text-5xl">Consulta candidatas por región</h2>
+
+      <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#070d1a] p-3 sm:p-6">
+        <svg
+          viewBox={mapa.viewBox}
+          role="img"
+          aria-label="Mapa del mundo por regiones"
+          className="h-auto w-full"
+        >
+          {mapa.paises.map((p) => {
+            const sub = p.s as SubregionId;
+            const seleccionada = sub === activa;
+            return (
+              <path
+                key={p.c}
+                d={p.d}
+                onClick={() => setActiva(sub)}
+                className={`cursor-pointer stroke-[#070d1a] transition-colors duration-200 ${
+                  seleccionada ? "fill-[#ed1c24]" : "fill-[#1c2a44] hover:fill-[#33507a]"
+                }`}
+                strokeWidth={0.6}
+              >
+                <title>{SUBREGIONES.find((s) => s.id === sub)?.nombre}</title>
+              </path>
+            );
+          })}
+
+          {mapa.etiquetas.map((e) => {
+            const id = e.id as SubregionId;
+            const nombre = SUBREGIONES.find((s) => s.id === id)?.nombre ?? "";
+            return (
+              <text
+                key={e.id}
+                x={e.x}
+                y={e.y}
+                textAnchor="middle"
+                onClick={() => setActiva(id)}
+                className="cursor-pointer select-none fill-white text-[13px] font-black uppercase"
+                stroke="#000"
+                strokeWidth={3}
+                paintOrder="stroke"
+              >
+                {nombre}
+                <tspan x={e.x} dy="15" className="fill-[#facc15] text-[12px]">
+                  ({conteo(id)})
+                </tspan>
+              </text>
+            );
+          })}
+        </svg>
+      </div>
 
       <div className="flex flex-wrap gap-3">
-        {REGIONES.map(({ clave, etiqueta }) => {
-          const activa = clave === regionActiva;
-          const cantidad = candidatas.filter((c) => c.region === clave).length;
+        {SUBREGIONES.map(({ id, nombre }) => {
+          const seleccion = id === activa;
           return (
             <button
-              key={clave}
+              key={id}
               type="button"
-              onClick={() => setRegionActiva(clave)}
-              className={`rounded-full px-5 py-2 font-semibold transition ${
-                activa
+              onClick={() => setActiva(id)}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                seleccion
                   ? "bg-[#facc15] text-black"
                   : "border border-white/15 text-white/80 hover:border-white"
               }`}
             >
-              {etiqueta}
-              <span className={`ml-2 text-sm ${activa ? "text-black/60" : "text-white/40"}`}>
-                ({cantidad})
+              {nombre}
+              <span className={`ml-2 ${seleccion ? "text-black/60" : "text-white/40"}`}>
+                ({conteo(id)})
               </span>
             </button>
           );
@@ -43,7 +97,7 @@ export function GaleriaCandidatas({ candidatas }: { candidatas: Candidata[] }) {
       <div>
         <h3 className="mb-5 flex items-center gap-4 text-2xl font-black uppercase">
           <span className="h-1 w-10 rounded-full bg-[#ed1c24]" />
-          {region.etiqueta}
+          {nombreActiva}
           <span className="text-base font-semibold text-white/40">({grupo.length})</span>
         </h3>
 
