@@ -1,64 +1,90 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { urlBandera } from "@/lib/banderas";
 import { CLAVE_FINAL } from "@/lib/etapas";
 
 const LUGARES = ["Ganadora", "Segunda", "Tercera", "Cuarta", "Quinta"];
-const PUNTAJES = Array.from({ length: 10 }, (_, k) => k + 1);
+const SEPARACION = 12; // espacio entre filas (gap-3)
 
-type Guardado = { orden: string[]; puntajes: Record<string, number> };
+type Arrastre = { id: string; inicio: number; indice: number; dy: number };
 
-function leerGuardado(): Guardado {
+function leerOrden(): string[] {
   try {
     const guardado = localStorage.getItem(CLAVE_FINAL);
-    return guardado ? (JSON.parse(guardado) as Guardado) : { orden: [], puntajes: {} };
+    const datos = guardado ? (JSON.parse(guardado) as { orden?: string[] }) : {};
+    return Array.isArray(datos.orden) ? datos.orden : [];
   } catch {
-    return { orden: [], puntajes: {} };
+    return [];
   }
 }
 
-// Ronda final: las 5 oficiales. Las acomodas de 1.º a 5.º y les pones un puntaje del 1 al 10.
+// Ronda final: arrastra a cada oficial hasta el lugar que crees que queda (1.º a 5.º). Sin puntajes.
 export function RondaFinal({ porId, top5 }: { porId: Map<string, Candidata>; top5: string[] }) {
-  const [guardadoOrden, setGuardadoOrden] = useState<string[]>([]);
-  const [puntajes, setPuntajes] = useState<Record<string, number>>({});
+  const [guardado, setGuardado] = useState<string[]>([]);
+  const [orden, setOrden] = useState<string[]>([]);
+  const [arrastre, setArrastre] = useState<Arrastre | null>(null);
+  const alturaFila = useRef(80);
 
   useEffect(() => {
-    const guardado = leerGuardado();
-    setGuardadoOrden(guardado.orden);
-    setPuntajes(guardado.puntajes);
+    setGuardado(leerOrden());
   }, []);
 
-  // Tu orden guardado, con las candidatas oficiales que vayan entrando al final.
-  const orden = useMemo(
-    () => [...guardadoOrden.filter((id) => top5.includes(id)), ...top5.filter((id) => !guardadoOrden.includes(id))],
-    [guardadoOrden, top5],
+  // Tu orden guardado, con las oficiales que vayan entrando al final.
+  const ordenBase = useMemo(
+    () => [...guardado.filter((id) => top5.includes(id)), ...top5.filter((id) => !guardado.includes(id))],
+    [guardado, top5],
   );
 
-  function guardar(nuevoOrden: string[], nuevosPuntajes: Record<string, number>) {
-    setGuardadoOrden(nuevoOrden);
-    setPuntajes(nuevosPuntajes);
-    localStorage.setItem(CLAVE_FINAL, JSON.stringify({ orden: nuevoOrden, puntajes: nuevosPuntajes }));
+  useEffect(() => {
+    setOrden(ordenBase);
+  }, [ordenBase]);
+
+  function guardar(nuevo: string[]) {
+    setOrden(nuevo);
+    setGuardado(nuevo);
+    localStorage.setItem(CLAVE_FINAL, JSON.stringify({ orden: nuevo }));
   }
 
-  function mover(i: number, direccion: -1 | 1) {
-    const j = i + direccion;
-    if (j < 0 || j >= orden.length) return;
-    const nuevo = [...orden];
-    [nuevo[i], nuevo[j]] = [nuevo[j], nuevo[i]];
-    guardar(nuevo, puntajes);
+  function alPresionar(e: ReactPointerEvent<HTMLButtonElement>, id: string, indice: number) {
+    e.preventDefault();
+    const fila = e.currentTarget.closest("li");
+    alturaFila.current = (fila?.offsetHeight ?? 80) + SEPARACION;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setArrastre({ id, inicio: e.clientY, indice, dy: 0 });
   }
 
-  function ponerPuntaje(id: string, puntaje: number) {
-    guardar(orden, { ...puntajes, [id]: puntaje });
+  function alMover(e: ReactPointerEvent<HTMLButtonElement>) {
+    if (!arrastre) return;
+    const dy = e.clientY - arrastre.inicio;
+    const salto = Math.round(dy / alturaFila.current);
+    const nuevoIndice = Math.min(orden.length - 1, Math.max(0, arrastre.indice + salto));
+
+    if (nuevoIndice !== arrastre.indice) {
+      // Cambia de lugar la fila y reinicia el punto de referencia para que siga bajo el dedo.
+      const nuevo = [...orden];
+      const [item] = nuevo.splice(arrastre.indice, 1);
+      nuevo.splice(nuevoIndice, 0, item);
+      setOrden(nuevo);
+      const inicioNuevo = arrastre.inicio + (nuevoIndice - arrastre.indice) * alturaFila.current;
+      setArrastre({ ...arrastre, indice: nuevoIndice, inicio: inicioNuevo, dy: e.clientY - inicioNuevo });
+    } else {
+      setArrastre({ ...arrastre, dy });
+    }
+  }
+
+  function alSoltar() {
+    if (!arrastre) return;
+    setArrastre(null);
+    guardar(orden);
   }
 
   return (
     <div className="rounded-3xl border border-white/10 bg-black/50 p-6 backdrop-blur md:p-8">
       <h4 className="text-xl font-black uppercase">Ronda de preguntas</h4>
       <p className="mt-2 text-sm text-white/60">
-        Mira la respuesta en la TV y acomoda a cada candidata. Sube o baja su lugar y ponle un puntaje del 1 al 10.
+        Mira la respuesta en la TV y arrastra a cada candidata hasta el lugar que crees que queda. Usa el agarre (≡) de la izquierda.
       </p>
 
       {top5.length === 0 ? (
@@ -70,63 +96,48 @@ export function RondaFinal({ porId, top5 }: { porId: Map<string, Candidata>; top
               const c = porId.get(id);
               if (!c) return null;
               const bandera = urlBandera(c.pais);
-              const puntaje = puntajes[id];
+              const arrastrando = arrastre?.id === id;
               return (
-                <li key={id} className="rounded-2xl border border-white/10 p-4">
-                  <div className="flex items-center gap-3">
-                    <span className="w-24 flex-none text-sm font-black uppercase text-[#facc15]">
-                      {i + 1}.º {LUGARES[i]}
-                    </span>
-                    {bandera && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={bandera} alt="" className="h-5 w-7 flex-none rounded-sm object-cover" />
-                    )}
-                    {c.foto_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.foto_url} alt="" className="h-10 w-8 flex-none rounded-md object-cover" />
-                    ) : (
-                      <span className="h-10 w-8 flex-none rounded-md bg-white/10" />
-                    )}
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate font-semibold">{c.pais}</span>
-                      <span className="block truncate text-xs text-white/50">{c.nombre}</span>
-                    </span>
-                    <button
-                      type="button"
-                      disabled={i === 0}
-                      onClick={() => mover(i, -1)}
-                      aria-label="Subir lugar"
-                      className="rounded-full border border-white/15 px-3 py-1 text-sm transition hover:border-white disabled:opacity-30"
-                    >
-                      ▲
-                    </button>
-                    <button
-                      type="button"
-                      disabled={i === orden.length - 1}
-                      onClick={() => mover(i, 1)}
-                      aria-label="Bajar lugar"
-                      className="rounded-full border border-white/15 px-3 py-1 text-sm transition hover:border-white disabled:opacity-30"
-                    >
-                      ▼
-                    </button>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {PUNTAJES.map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => ponerPuntaje(id, n)}
-                        className={`h-8 w-8 rounded-full border text-sm font-bold transition ${
-                          puntaje === n
-                            ? "border-[#facc15] bg-[#facc15] text-black"
-                            : "border-white/15 text-white/70 hover:border-white"
-                        }`}
-                      >
-                        {n}
-                      </button>
-                    ))}
-                  </div>
+                <li
+                  key={id}
+                  style={arrastrando ? { transform: `translateY(${arrastre!.dy}px)` } : undefined}
+                  className={`relative flex items-center gap-3 rounded-2xl border p-3 ${
+                    arrastrando
+                      ? "z-10 border-[#facc15] bg-black/90 shadow-xl"
+                      : "border-white/10 transition-transform duration-200"
+                  }`}
+                >
+                  <span className="w-20 flex-none text-xs font-black uppercase leading-tight text-[#facc15]">
+                    {i + 1}.º
+                    <br />
+                    {LUGARES[i]}
+                  </span>
+                  {bandera && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={bandera} alt="" className="h-5 w-7 flex-none rounded-sm object-cover" />
+                  )}
+                  {c.foto_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.foto_url} alt="" className="h-10 w-8 flex-none rounded-md object-cover" />
+                  ) : (
+                    <span className="h-10 w-8 flex-none rounded-md bg-white/10" />
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">{c.pais}</span>
+                    <span className="block truncate text-xs text-white/50">{c.nombre}</span>
+                  </span>
+                  <button
+                    type="button"
+                    aria-label={`Arrastrar ${c.pais}`}
+                    onPointerDown={(e) => alPresionar(e, id, i)}
+                    onPointerMove={alMover}
+                    onPointerUp={alSoltar}
+                    onPointerCancel={alSoltar}
+                    style={{ touchAction: "none" }}
+                    className="flex h-12 w-12 flex-none cursor-grab items-center justify-center rounded-xl border border-white/15 text-xl text-white/70 active:cursor-grabbing"
+                  >
+                    ≡
+                  </button>
                 </li>
               );
             })}
@@ -134,10 +145,10 @@ export function RondaFinal({ porId, top5 }: { porId: Map<string, Candidata>; top
 
           <button
             type="button"
-            onClick={() => guardar([], {})}
+            onClick={() => guardar([])}
             className="mt-6 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-white/70 transition hover:border-white"
           >
-            Reiniciar
+            Reiniciar orden
           </button>
         </>
       )}
