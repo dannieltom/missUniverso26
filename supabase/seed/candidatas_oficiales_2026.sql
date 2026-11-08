@@ -129,7 +129,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Sudáfrica', 'South Africa', 'Africa', 'Bajabulise Thela', 'Miss Universe South Africa 2026', null),
 ('Sudán del Sur', 'South Sudan', 'Africa', 'Adut Deng', 'Miss Universe South Sudan 2026', null),
 ('España', 'Spain', 'Europa', 'Susana Lucía Medina', 'Miss Universe Spain 2026', '/fotos/spain.jpg'),
-('Sri Lanka', 'Sri Lanka', 'Asia', 'Nimhara Sasindi', 'Miss Universe Sri Lanka 2026', null),
+('Sri Lanka', 'Sri Lanka', 'Asia', 'Nimhara Sasindi', 'Miss Universe Sri Lanka 2026', '/fotos/sri-lanka.jpg'),
 ('Surinam', 'Suriname', 'America', 'Maruschka Sahiboe', 'Miss Universe Suriname 2026', null),
 ('Suecia', 'Sweden', 'Europa', 'Josefin Strand', 'Miss Universe Sweden 2026', null),
 ('Suiza', 'Switzerland', 'Europa', 'Itiya Dube', 'Miss Universe Switzerland 2026', null),
