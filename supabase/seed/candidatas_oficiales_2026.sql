@@ -43,7 +43,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Camboya', 'Cambodia', 'Asia', 'Than Rthna', 'Miss Universe Cambodia 2026', '/fotos/camboya.jpg'),
 ('Camerún', 'Cameroon', 'Africa', 'Audrey Moutongo Black', 'Miss Cameroon 2025', '/fotos/camerun.jpg'),
 ('Canadá', 'Canada', 'America', 'Aslhan Moralı', 'Miss Universe Canada 2026', '/fotos/canada.jpg'),
-('Islas Caimán', 'Cayman Islands', 'Caribe', 'Juliana May Myers', 'Miss Universe Cayman Islands 2026', null),
+('Islas Caimán', 'Cayman Islands', 'Caribe', 'Juliana May Myers', 'Miss Universe Cayman Islands 2026', '/fotos/cayman-islands.jpg'),
 ('Chile', 'Chile', 'America', 'Dominga López', 'Miss Universo Chile 2026', '/fotos/chile.jpg'),
 ('China', 'China', 'Asia', 'Shiqi Wang', 'Miss Universe China 2026', null),
 ('Colombia', 'Colombia', 'America', 'María Alejandra López Pérez', 'Miss Universe Colombia 2026', '/fotos/colombia.jpg'),
