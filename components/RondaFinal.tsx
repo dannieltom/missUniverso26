@@ -108,8 +108,6 @@ export function RondaFinal({ porId, top5 }: { porId: Map<string, Candidata>; top
                   }`}
                 >
                   <span className="w-24 flex-none text-xs font-black uppercase leading-tight text-[#facc15]">
-                    {i + 1}.º
-                    <br />
                     {LUGARES[i]}
                   </span>
                   {bandera && (
