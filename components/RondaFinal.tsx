@@ -5,7 +5,7 @@ import type { Candidata } from "@/lib/tipos";
 import { urlBandera } from "@/lib/banderas";
 import { CLAVE_FINAL } from "@/lib/etapas";
 
-const LUGARES = ["Ganadora", "Segunda", "Tercera", "Cuarta", "Quinta"];
+const LUGARES = ["Miss Universo 2026", "1.ª finalista", "2.ª finalista", "3.ª finalista", "4.ª finalista"];
 const SEPARACION = 12; // espacio entre filas (gap-3)
 
 type Arrastre = { id: string; inicio: number; indice: number; dy: number };
@@ -107,7 +107,7 @@ export function RondaFinal({ porId, top5 }: { porId: Map<string, Candidata>; top
                       : "border-white/10 transition-transform duration-200"
                   }`}
                 >
-                  <span className="w-20 flex-none text-xs font-black uppercase leading-tight text-[#facc15]">
+                  <span className="w-24 flex-none text-xs font-black uppercase leading-tight text-[#facc15]">
                     {i + 1}.º
                     <br />
                     {LUGARES[i]}
