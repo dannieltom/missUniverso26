@@ -28,14 +28,25 @@ type Props = {
   /** Solo en la vista del administrador: el orden oficial guardado y cómo guardarlo. */
   oficialGuardado?: string[];
   onGuardarOficial?: (ids: string[]) => void;
+  /** Solo en la vista personal: el orden oficial publicado, para marcar ✓ o ✗ en cada lugar. */
+  oficialFinal?: string[];
   trabajando?: boolean;
   mensaje?: string | null;
 };
 
 // Ronda final: arrastra a cada oficial hasta el lugar que crees que queda.
 // Personal: tu orden se guarda y cuenta para el ranking. Oficial (admin): el orden real.
-export function RondaFinal({ porId, top5, oficialGuardado, onGuardarOficial, trabajando = false, mensaje = null }: Props) {
+export function RondaFinal({
+  porId,
+  top5,
+  oficialGuardado,
+  onGuardarOficial,
+  oficialFinal,
+  trabajando = false,
+  mensaje = null,
+}: Props) {
   const esOficial = !!onGuardarOficial;
+  const mostrarAciertos = !esOficial && !!oficialFinal && oficialFinal.length === top5.length && top5.length > 0;
   const [guardadoPersonal, setGuardadoPersonal] = useState<string[]>(VACIO);
   const [orden, setOrden] = useState<string[]>(VACIO);
   const [arrastre, setArrastre] = useState<Arrastre | null>(null);
@@ -154,6 +165,16 @@ export function RondaFinal({ porId, top5, oficialGuardado, onGuardarOficial, tra
                     <span className="block truncate font-semibold">{c.pais}</span>
                     <span className="block truncate text-xs text-white/50">{c.nombre}</span>
                   </span>
+                  {mostrarAciertos && (
+                    <span
+                      aria-label={orden[i] === oficialFinal![i] ? "Acertaste este lugar" : "No acertaste este lugar"}
+                      className={`flex h-8 w-8 flex-none items-center justify-center rounded-full text-lg font-black ${
+                        orden[i] === oficialFinal![i] ? "bg-green-500 text-white" : "bg-red-600 text-white"
+                      }`}
+                    >
+                      {orden[i] === oficialFinal![i] ? "✓" : "✗"}
+                    </span>
+                  )}
                   <button
                     type="button"
                     aria-label={`Arrastrar ${c.pais}`}

@@ -218,7 +218,7 @@ export function RondaNocheFinal({
               mensaje={mensaje}
             />
           )}
-          <RondaFinal porId={porId} top5={oficiales.top5} />
+          <RondaFinal porId={porId} top5={oficiales.top5} oficialFinal={oficialFinal} />
         </div>
       ) : (
         <TopEtapa
