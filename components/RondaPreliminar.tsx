@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { PUNTAJE_MAX, PUNTAJE_MIN, parsearPuntaje } from "@/lib/tipos";
 import { urlBandera } from "@/lib/banderas";
@@ -44,6 +44,7 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
   const [error, setError] = useState<string | null>(null);
   const [listo, setListo] = useState(false);
   const [visibles, setVisibles] = useState(FILAS_INICIALES);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   // Recupera los puntajes guardados en este navegador.
   useEffect(() => {
@@ -95,6 +96,15 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
         Aún no hay candidatas cargadas.
       </p>
     );
+  }
+
+  // Carga la candidata y la sección en el editor para corregir su puntaje.
+  function editarPuntaje(id: string, nueva: Seccion) {
+    const posicion = candidatas.findIndex((c) => c.id === id);
+    if (posicion < 0) return;
+    setSeccion(nueva);
+    setIndice(posicion);
+    editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function cambiarSeccion(nueva: Seccion) {
@@ -152,7 +162,7 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
         </button>
       </div>
 
-      <div className="aparecer grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      <div ref={editorRef} className="aparecer grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
         {/* Foto grande de la candidata */}
         <div className="relative min-h-[32rem] overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0050f0]/40 via-black to-[#ed1c24]/40">
           {actual.foto_url ? (
@@ -295,8 +305,22 @@ export function RondaPreliminar({ candidatas }: { candidatas: Candidata[] }) {
                   )}
                   <span className="truncate font-semibold">{candidata.pais}</span>
                 </span>
-                <span className="text-right tabular-nums text-white/80">{formato(banio)}</span>
-                <span className="text-right tabular-nums text-white/80">{formato(gala)}</span>
+                <button
+                  type="button"
+                  onClick={() => editarPuntaje(candidata.id, "banio")}
+                  title="Toca para corregir el puntaje de baño"
+                  className="text-right tabular-nums text-white/80 underline-offset-4 hover:text-[#facc15] hover:underline"
+                >
+                  {formato(banio)}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editarPuntaje(candidata.id, "gala")}
+                  title="Toca para corregir el puntaje de gala"
+                  className="text-right tabular-nums text-white/80 underline-offset-4 hover:text-[#facc15] hover:underline"
+                >
+                  {formato(gala)}
+                </button>
                 <span className="text-right text-lg font-black tabular-nums text-[#facc15]">
                   {formato(total, 2)}
                 </span>

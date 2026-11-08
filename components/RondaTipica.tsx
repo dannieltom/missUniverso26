@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { PUNTAJE_MAX, PUNTAJE_MIN, parsearPuntaje } from "@/lib/tipos";
 
@@ -14,6 +14,7 @@ export function RondaTipica({ candidatas }: { candidatas: Candidata[] }) {
   const [entrada, setEntrada] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [listo, setListo] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
 
   // Recupera los puntajes guardados en este navegador.
   useEffect(() => {
@@ -71,6 +72,14 @@ export function RondaTipica({ candidatas }: { candidatas: Candidata[] }) {
     if (indice < candidatas.length - 1) setIndice(indice + 1);
   }
 
+  // Carga una candidata en el editor para corregir su puntaje.
+  function editarCandidata(id: string) {
+    const posicion = candidatas.findIndex((c) => c.id === id);
+    if (posicion < 0) return;
+    setIndice(posicion);
+    editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function anterior() {
     setIndice((i) => Math.max(0, i - 1));
   }
@@ -83,7 +92,7 @@ export function RondaTipica({ candidatas }: { candidatas: Candidata[] }) {
 
   return (
     <div className="space-y-10">
-      <div className="aparecer grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      <div ref={editorRef} className="aparecer grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
         {/* Foto grande de la candidata */}
         <div className="relative min-h-[32rem] overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0050f0]/40 via-black to-[#ed1c24]/40">
           {actual.foto_url ? (
@@ -201,7 +210,9 @@ export function RondaTipica({ candidatas }: { candidatas: Candidata[] }) {
             {ranking.map(({ candidata, puntaje }, posicion) => (
               <li
                 key={candidata.id}
-                className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/50 px-5 py-3 backdrop-blur"
+                onClick={() => editarCandidata(candidata.id)}
+                title="Toca para corregir su puntaje"
+                className="flex cursor-pointer items-center justify-between rounded-2xl border border-white/10 bg-black/50 px-5 py-3 backdrop-blur transition hover:border-[#facc15]/60"
               >
                 <span className="min-w-0">
                   <span className="mr-3 font-black text-[#ed1c24]">{posicion + 1}</span>
