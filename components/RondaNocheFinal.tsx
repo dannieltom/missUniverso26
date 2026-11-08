@@ -29,7 +29,7 @@ const ETIQUETA: Record<Seccion, string> = {
   gala: "Traje de gala",
 };
 
-const OPCIONES_N = [10, 15, 20, 25, 30];
+const OPCIONES_N = Array.from({ length: 125 }, (_, i) => i + 1);
 const N_POR_DEFECTO = 20;
 const FINALISTAS = 5;
 const FILAS_INICIALES = 30;
