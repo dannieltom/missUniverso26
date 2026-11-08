@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const MODELO = "gemini-3.8-flash";
+const MODELO = "gemini-3.1-flash-lite";
 
 // Fuentes que aceptamos como confiables para el top oficial.
 const FUENTES_PERMITIDAS = [
