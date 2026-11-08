@@ -94,7 +94,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Lituania', 'Lithuania', 'Europa', 'Olga Bykadorova', 'Miss Universe Lithuania 2026', '/fotos/lithuania.jpg'),
 ('Macao', 'Macau', 'Asia', 'Hou Xuhe', 'Miss Universe Macau 2026', null),
 ('Malta', 'Malta', 'Europa', 'Francesca Mercieca', 'Miss Universe Malta 2026', '/fotos/malta.jpg'),
-('Martinica', 'Martinique', 'Caribe', 'Larissa Ségarel', 'Miss Universe Martinique 2026', null),
+('Martinica', 'Martinique', 'Caribe', 'Larissa Ségarel', 'Miss Universe Martinique 2026', '/fotos/martinique.jpg'),
 ('Mayotte', 'Mayotte', 'Africa', 'Maëva Toumbou Dani', 'Miss Universe Mayotte 2026', null),
 ('México', 'Mexico', 'America', 'María Vargas', 'Miss Universe México 2026', null),
 ('Moldavia', 'Moldova', 'Europa', 'Dorina Darii', 'Miss Universe Moldova 2026', null),
