@@ -166,8 +166,17 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
                 </ul>
                 <button
                   type="button"
+                  onClick={() => setJugarSolo(true)}
+                  className="mt-6 rounded-full bg-white px-6 py-2 font-bold text-black transition hover:bg-[#facc15]"
+                >
+                  Jugar en la sala →
+                </button>
+                <button
+                  type="button"
                   disabled={cargando}
                   onClick={salir}
+                  className="ml-3 mt-6 rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white/70 transition hover:border-white disabled:opacity-40"
+                >
                   className="mt-6 rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white/70 transition hover:border-white disabled:opacity-40"
                 >
                   Salir de la sala
@@ -235,7 +244,8 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
     <div className="space-y-12">
       <div className="flex items-center justify-between text-sm text-white/60">
         <span>
-          Modo: <span className="font-semibold text-white">Jugar solo</span>
+          Modo:{" "}
+          <span className="font-semibold text-white">{sala ? `Sala ${sala.nombre}` : "Jugar solo"}</span>
         </span>
       </div>
 
