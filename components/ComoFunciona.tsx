@@ -9,10 +9,6 @@ export function ComoFunciona() {
         <h2 className="mt-2 text-4xl font-black uppercase sm:text-5xl">
           Califica mientras ves el concurso
         </h2>
-        <p className="mt-6 max-w-3xl text-lg text-white/70">
-          Es una app para calificar a las candidatas de Miss Universo 2026 en vivo, desde tu celular
-          o computadora. Puedes jugar solo o con tus amigos en una sala.
-        </p>
       </section>
 
       <section>
