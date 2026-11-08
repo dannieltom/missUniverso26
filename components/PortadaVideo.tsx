@@ -1,15 +1,51 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const CLAVE_INTRO = "mu26-intro-visto";
 
 /**
  * Encabezado a pantalla completa con el video del evento de fondo.
- * El video arranca en silencio (los navegadores no permiten audio automático);
- * el botón activa el sonido.
+ * La primera vez que se abre la página en la sesión, muestra una pantalla de entrada:
+ * el clic del visitante permite que el video arranque con sonido (los navegadores
+ * no lo permiten sin un clic previo). Después, el botón de sonido sigue disponible.
  */
 export function PortadaVideo() {
   const video = useRef<HTMLVideoElement>(null);
   const [conSonido, setConSonido] = useState(false);
+  const [mostrarIntro, setMostrarIntro] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (!sessionStorage.getItem(CLAVE_INTRO)) setMostrarIntro(true);
+    } catch {
+      setMostrarIntro(true);
+    }
+  }, []);
+
+  function marcarIntroVista() {
+    try {
+      sessionStorage.setItem(CLAVE_INTRO, "1");
+    } catch {
+      // Si el almacenamiento no está disponible, la intro simplemente vuelve a aparecer.
+    }
+  }
+
+  function entrarConSonido() {
+    const v = video.current;
+    if (v) {
+      v.muted = false;
+      setConSonido(true);
+      void v.play().catch(() => {});
+    }
+    marcarIntroVista();
+    setMostrarIntro(false);
+  }
+
+  function seguirSinSonido() {
+    marcarIntroVista();
+    setMostrarIntro(false);
+  }
 
   function alternarSonido() {
     const v = video.current;
@@ -33,6 +69,26 @@ export function PortadaVideo() {
         aria-hidden="true"
       />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#05060d] via-[#05060d]/55 to-[#05060d]/15" />
+
+      {mostrarIntro && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-[#05060d]/80 backdrop-blur-sm">
+          <p className="text-sm uppercase tracking-[0.35em] text-white/70">Miss Universo 2026</p>
+          <button
+            type="button"
+            onClick={entrarConSonido}
+            className="rounded-full bg-gradient-to-r from-[#ed1c24] to-[#0050f0] px-10 py-4 text-lg font-black uppercase tracking-wider text-white shadow-lg transition hover:brightness-110 active:scale-[0.98]"
+          >
+            Entrar con sonido
+          </button>
+          <button
+            type="button"
+            onClick={seguirSinSonido}
+            className="text-sm text-white/60 underline underline-offset-4 hover:text-white"
+          >
+            Seguir sin sonido
+          </button>
+        </div>
+      )}
 
       <div className="mx-auto w-full max-w-7xl px-6 pb-14">
         <p className="aparecer text-sm font-semibold uppercase tracking-[0.35em] text-white/80">
