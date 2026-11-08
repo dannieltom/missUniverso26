@@ -8,7 +8,9 @@
 --  2) Agrega las que faltan, con su nombre oficial cuando se conoce.
 --  3) Elimina las que no están en la lista oficial (por ejemplo Maldivas y Níger).
 
-create temp table oficial (
+drop table if exists oficial;
+
+create table oficial (
   pais_anterior text,
   pais text not null,
   region text not null,
