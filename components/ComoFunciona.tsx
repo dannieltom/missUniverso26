@@ -3,12 +3,15 @@
  */
 export function ComoFunciona() {
   return (
-    <div className="space-y-24">
+    <div className="space-y-16">
       <section className="aparecer">
         <p className="text-sm font-semibold uppercase tracking-widest text-[#facc15]">Qué es</p>
         <h2 className="mt-2 text-4xl font-black uppercase sm:text-5xl">
           Califica mientras ves el concurso
         </h2>
+        <p className="mt-4 max-w-2xl text-sm text-white/60">
+          Pon un puntaje a cada candidata, mira tu ranking y compáralo con los resultados oficiales.
+        </p>
       </section>
 
       <section>
