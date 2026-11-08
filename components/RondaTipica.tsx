@@ -120,6 +120,23 @@ export function RondaTipica({ candidatas }: { candidatas: Candidata[] }) {
             />
           </div>
 
+          <label className="mt-5 block">
+            <span className="mb-2 block text-sm uppercase tracking-widest text-white/60">
+              Ir a un país
+            </span>
+            <select
+              value={indice}
+              onChange={(e) => setIndice(Number(e.target.value))}
+              className="w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3 text-white outline-none focus:border-[#facc15]"
+            >
+              {candidatas.map((c, i) => (
+                <option key={c.id} value={i} className="bg-black">
+                  {c.pais} · {c.nombre}
+                </option>
+              ))}
+            </select>
+          </label>
+
           {actual.descripcion && (
             <p className="mt-6 text-white/70">{actual.descripcion}</p>
           )}
