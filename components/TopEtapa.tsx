@@ -117,7 +117,7 @@ function Buscador({
   );
 }
 
-export type AnteriorInfo = { etiqueta: string; tamano: number; completo: boolean };
+export type AnteriorInfo = { etiqueta: string; tamano: number; cantidad: number; completo: boolean };
 
 type Props = {
   clave: EtapaClave;
@@ -220,12 +220,6 @@ export function TopEtapa({
             </button>
           </div>
 
-          {anterior && !anterior.completo && (
-            <p className="text-sm text-white/50">
-              El {anterior.etiqueta} oficial todavía no está completo. Solo puedes agregar sus candidatas.
-            </p>
-          )}
-
           <div className="space-y-3">
             <p className="text-sm text-white/70">Agregar al top oficial</p>
             <Buscador
@@ -284,7 +278,8 @@ export function TopEtapa({
 
   // ---------- Participantes (también las ve el admin, para armar su propio top) ----------
   const pickearDisponible = !esInicial && !!anterior;
-  const poolBloqueado = pickearDisponible && !anterior!.completo;
+  // Puedes elegir de las candidatas que ya salieron en el top anterior, aunque no esté completo.
+  const poolBloqueado = pickearDisponible && pool.length === 0;
 
   return (
     <div className="space-y-6">
@@ -299,15 +294,22 @@ export function TopEtapa({
           </p>
           {poolBloqueado ? (
             <p className="text-sm text-white/50">
-              Espera a que se complete el {anterior!.etiqueta} oficial para armar tu top {tamano}.
+              Todavía no hay candidatas oficiales en el {anterior!.etiqueta}.
             </p>
           ) : (
-            <Buscador
-              pool={pool}
-              excluir={new Set(picks)}
-              deshabilitado={picks.length >= tamano}
-              onElegir={(id) => guardarMiTop([...picks, id])}
-            />
+            <>
+              {!anterior!.completo && (
+                <p className="text-sm text-white/50">
+                  Van {anterior!.cantidad} de {anterior!.tamano} en el {anterior!.etiqueta} oficial. Puedes elegir de las que ya salieron.
+                </p>
+              )}
+              <Buscador
+                pool={pool}
+                excluir={new Set(picks)}
+                deshabilitado={picks.length >= tamano}
+                onElegir={(id) => guardarMiTop([...picks, id])}
+              />
+            </>
           )}
           {picks.length > 0 && (
             <button

@@ -158,6 +158,7 @@ export function RondaNocheFinal({ candidatas, admin = false }: { candidatas: Can
       : {
           etiqueta: `Top ${tamanos[anteriorClave]}`,
           tamano: tamanos[anteriorClave],
+          cantidad: oficiales[anteriorClave].length,
           completo: oficiales[anteriorClave].length >= tamanos[anteriorClave],
         };
   const pool = anteriorClave
