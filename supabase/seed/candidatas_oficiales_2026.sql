@@ -77,7 +77,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Hungría', 'Hungary', 'Europa', 'Kiss Kamilla', 'Miss Universe Hungary 2026', '/fotos/hungary.jpg'),
 ('Islandia', 'Iceland', 'Europa', 'Sigga Özk', 'Miss Universe Iceland 2026', '/fotos/iceland.jpg'),
 ('India', 'India', 'Asia', 'Kaziah Liz Mejo', 'Miss Universe India 2026', '/fotos/india.jpg'),
-('Irak', 'Iraq', 'Asia', 'Samantha Slewa', 'Miss Universe Iraq 2026', null),
+('Irak', 'Iraq', 'Asia', 'Samantha Slewa', 'Miss Universe Iraq 2026', '/fotos/iraq.jpg'),
 ('Irlanda', 'Ireland', 'Europa', 'Aideen Howard', 'Miss Universe Ireland 2026', '/fotos/ireland.jpg'),
 ('Israel', 'Israel', 'Asia', 'Danielle Sophie Yablonka', 'Miss Universe Israel 2026', '/fotos/israel.jpg'),
 ('Italia', 'Italy', 'Europa', 'Giada Folcia', 'Miss Universe Italy 2026', '/fotos/italy.jpg'),
