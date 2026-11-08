@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Candidata } from "@/lib/tipos";
+import { crearSala, miSala, salirSala, unirseSala, type Sala } from "@/lib/salas";
 import { RondaTipica } from "@/components/RondaTipica";
 import { RondaPreliminar } from "@/components/RondaPreliminar";
 import { RondaNocheFinal } from "@/components/RondaNocheFinal";
@@ -39,9 +40,64 @@ const RONDAS: Ronda[] = [
  * Elección de modo (solo o sala) y selector de rondas.
  * Las salas todavía no están conectadas, así que esa opción queda desactivada.
  */
+function mensajeDe(error: unknown): string {
+  return error instanceof Error ? error.message : "Algo salió mal. Intenta de nuevo.";
+}
+
 export function Juego({ candidatas }: { candidatas: Candidata[] }) {
   const [jugarSolo, setJugarSolo] = useState(false);
   const [claveRonda, setClaveRonda] = useState(RONDAS[0].clave);
+
+  const [sala, setSala] = useState<Sala | null>(null);
+  const [codigo, setCodigo] = useState("");
+  const [nombreSala, setNombreSala] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const [mensaje, setMensaje] = useState<string | null>(null);
+
+  useEffect(() => {
+    miSala()
+      .then(setSala)
+      .catch(() => setSala(null));
+  }, []);
+
+  async function entrar() {
+    setCargando(true);
+    setMensaje(null);
+    try {
+      setSala(await unirseSala(codigo));
+      setCodigo("");
+    } catch (error) {
+      setMensaje(mensajeDe(error));
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  async function crear() {
+    setCargando(true);
+    setMensaje(null);
+    try {
+      setSala(await crearSala(nombreSala));
+      setNombreSala("");
+    } catch (error) {
+      setMensaje(mensajeDe(error));
+    } finally {
+      setCargando(false);
+    }
+  }
+
+  async function salir() {
+    setCargando(true);
+    setMensaje(null);
+    try {
+      await salirSala();
+      setSala(null);
+    } catch (error) {
+      setMensaje(mensajeDe(error));
+    } finally {
+      setCargando(false);
+    }
+  }
 
   if (!jugarSolo) {
     return (
@@ -67,25 +123,63 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
 
           <div className="rounded-3xl border border-white/10 bg-black/30 p-8 backdrop-blur">
             <p className="text-sm uppercase tracking-widest text-white/50">En grupo</p>
-            <h3 className="mt-2 text-2xl font-black uppercase">Unirme a una sala</h3>
-            <p className="mt-3 text-white/70">
-              Entra con el código de tu grupo y compite con tus amigos en el ranking de la sala.
-            </p>
-            <div className="mt-6 flex gap-3">
-              <input
-                disabled
-                placeholder="Código de sala"
-                className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white/40 outline-none"
-              />
-              <button
-                type="button"
-                disabled
-                className="rounded-xl bg-white/10 px-5 py-3 font-semibold text-white/40"
-              >
-                Entrar
-              </button>
-            </div>
-            <p className="mt-3 text-sm text-white/40">Las salas llegan pronto.</p>
+            {sala ? (
+              <>
+                <h3 className="mt-2 text-2xl font-black uppercase">{sala.nombre}</h3>
+                <p className="mt-3 text-white/70">Comparte este código con tus amigos para que entren:</p>
+                <p className="mt-4 font-mono text-3xl font-black tracking-[0.3em] text-[#facc15]">{sala.codigo}</p>
+                <button
+                  type="button"
+                  disabled={cargando}
+                  onClick={salir}
+                  className="mt-6 rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white/70 transition hover:border-white disabled:opacity-40"
+                >
+                  Salir de la sala
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="mt-2 text-2xl font-black uppercase">Unirme a una sala</h3>
+                <p className="mt-3 text-white/70">
+                  Entra con el código de tu grupo, o crea una sala y comparte su código.
+                </p>
+                <div className="mt-6 flex gap-3">
+                  <input
+                    value={codigo}
+                    onChange={(e) => setCodigo(e.target.value.toUpperCase())}
+                    maxLength={6}
+                    placeholder="Código de sala"
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3 font-mono uppercase text-white outline-none focus:border-[#facc15]"
+                  />
+                  <button
+                    type="button"
+                    disabled={cargando || codigo.trim() === ""}
+                    onClick={entrar}
+                    className="rounded-xl bg-white px-5 py-3 font-semibold text-black transition hover:bg-[#facc15] disabled:opacity-40"
+                  >
+                    Entrar
+                  </button>
+                </div>
+                <div className="mt-4 flex gap-3">
+                  <input
+                    value={nombreSala}
+                    onChange={(e) => setNombreSala(e.target.value)}
+                    maxLength={40}
+                    placeholder="Nombre de la sala"
+                    className="w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3 text-white outline-none focus:border-[#facc15]"
+                  />
+                  <button
+                    type="button"
+                    disabled={cargando || nombreSala.trim() === ""}
+                    onClick={crear}
+                    className="rounded-xl border border-white/15 px-5 py-3 font-semibold text-white/80 transition hover:border-white disabled:opacity-40"
+                  >
+                    Crear sala
+                  </button>
+                </div>
+              </>
+            )}
+            {mensaje && <p className="mt-4 text-sm text-red-400">{mensaje}</p>}
           </div>
         </div>
       </section>
@@ -133,7 +227,7 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
           rondaActual.clave === "preliminar" ? (
             <RondaPreliminar candidatas={candidatas} />
           ) : rondaActual.clave === "noche-final" ? (
-            <RondaNocheFinal candidatas={candidatas} />
+            <RondaNocheFinal candidatas={candidatas} salaId={sala?.id ?? null} />
           ) : (
             <RondaTipica candidatas={candidatas} />
           )

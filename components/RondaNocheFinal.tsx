@@ -11,11 +11,19 @@ import { RankingSala } from "@/components/RankingSala";
 
 type Vista = EtapaClave | "final";
 const VISTAS: Vista[] = [...ETAPA_CLAVES, "final"];
-const CLAVE_SALA = "mu26-sala-actual";
 const VACIO_OFICIALES: Record<EtapaClave, string[]> = { inicial: [], top10: [], top5: [] };
 
 // admin = true: página /admin, donde el administrador entra con su cuenta de Google.
-export function RondaNocheFinal({ candidatas, admin = false }: { candidatas: Candidata[]; admin?: boolean }) {
+export function RondaNocheFinal({
+  candidatas,
+  admin = false,
+  salaId = null,
+}: {
+  candidatas: Candidata[];
+  admin?: boolean;
+  /** Sala en la que estás (si estás en alguna). Viene de la pantalla principal. */
+  salaId?: string | null;
+}) {
   const [vista, setVista] = useState<Vista>("inicial");
   const [tamanos, setTamanos] = useState<Record<EtapaClave, number>>(TAMANOS_POR_DEFECTO);
   const [oficiales, setOficiales] = useState<Record<EtapaClave, string[]>>(VACIO_OFICIALES);
@@ -25,14 +33,7 @@ export function RondaNocheFinal({ candidatas, admin = false }: { candidatas: Can
   const [autorizado, setAutorizado] = useState<boolean | null>(null);
   const [trabajando, setTrabajando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
-  // Sala a la que perteneces (se configura después, al unirte a una sala).
-  const [salaId, setSalaId] = useState<string | null>(null);
-
   const porId = useMemo(() => new Map(candidatas.map((c) => [c.id, c])), [candidatas]);
-
-  useEffect(() => {
-    setSalaId(localStorage.getItem(CLAVE_SALA));
-  }, []);
 
   // Tamaños y tops oficiales de todas las etapas, en vivo.
   useEffect(() => {
