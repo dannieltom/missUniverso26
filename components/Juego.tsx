@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Candidata } from "@/lib/tipos";
-import { crearSala, miSala, salirSala, unirseSala, type Sala } from "@/lib/salas";
+import { crearSala, integrantesSala, miSala, salirSala, unirseSala, type Sala } from "@/lib/salas";
 import { RondaTipica } from "@/components/RondaTipica";
 import { RondaPreliminar } from "@/components/RondaPreliminar";
 import { RondaNocheFinal } from "@/components/RondaNocheFinal";
@@ -53,6 +53,31 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
   const [nombreSala, setNombreSala] = useState("");
   const [cargando, setCargando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
+  const [tuNombre, setTuNombre] = useState("");
+  const [integrantes, setIntegrantes] = useState<string[]>([]);
+
+  // Mientras estás en una sala, la lista de integrantes se actualiza sola.
+  useEffect(() => {
+    if (!sala) {
+      setIntegrantes([]);
+      return;
+    }
+    let cancelado = false;
+    async function cargarIntegrantes() {
+      try {
+        const nombres = await integrantesSala();
+        if (!cancelado) setIntegrantes(nombres);
+      } catch {
+        // Si falla, se intenta de nuevo en el siguiente ciclo.
+      }
+    }
+    cargarIntegrantes();
+    const intervalo = setInterval(cargarIntegrantes, 10000);
+    return () => {
+      cancelado = true;
+      clearInterval(intervalo);
+    };
+  }, [sala]);
 
   useEffect(() => {
     miSala()
@@ -64,7 +89,7 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
     setCargando(true);
     setMensaje(null);
     try {
-      setSala(await unirseSala(codigo));
+      setSala(await unirseSala(codigo, tuNombre));
       setCodigo("");
     } catch (error) {
       setMensaje(mensajeDe(error));
@@ -77,7 +102,7 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
     setCargando(true);
     setMensaje(null);
     try {
-      setSala(await crearSala(nombreSala));
+      setSala(await crearSala(nombreSala, tuNombre));
       setNombreSala("");
     } catch (error) {
       setMensaje(mensajeDe(error));
@@ -128,6 +153,17 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
                 <h3 className="mt-2 text-2xl font-black uppercase">{sala.nombre}</h3>
                 <p className="mt-3 text-white/70">Comparte este código con tus amigos para que entren:</p>
                 <p className="mt-4 font-mono text-3xl font-black tracking-[0.3em] text-[#facc15]">{sala.codigo}</p>
+                <p className="mt-4 text-sm text-white/50">
+                  Estás como <span className="font-semibold text-white">{sala.miNombre}</span>
+                </p>
+                <p className="mt-5 text-sm uppercase tracking-widest text-white/50">Integrantes ({integrantes.length})</p>
+                <ul className="mt-2 flex flex-wrap gap-2">
+                  {integrantes.map((nombre, i) => (
+                    <li key={`${nombre}-${i}`} className="rounded-full border border-white/15 px-3 py-1 text-sm">
+                      {nombre}
+                    </li>
+                  ))}
+                </ul>
                 <button
                   type="button"
                   disabled={cargando}
@@ -143,7 +179,14 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
                 <p className="mt-3 text-white/70">
                   Entra con el código de tu grupo, o crea una sala y comparte su código.
                 </p>
-                <div className="mt-6 flex gap-3">
+                <input
+                  value={tuNombre}
+                  onChange={(e) => setTuNombre(e.target.value)}
+                  maxLength={30}
+                  placeholder="Tu nombre (así te verán en la sala)"
+                  className="mt-6 w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3 text-white outline-none focus:border-[#facc15]"
+                />
+                <div className="mt-4 flex gap-3">
                   <input
                     value={codigo}
                     onChange={(e) => setCodigo(e.target.value.toUpperCase())}
@@ -153,7 +196,7 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
                   />
                   <button
                     type="button"
-                    disabled={cargando || codigo.trim() === ""}
+                    disabled={cargando || codigo.trim() === "" || tuNombre.trim() === ""}
                     onClick={entrar}
                     className="rounded-xl bg-white px-5 py-3 font-semibold text-black transition hover:bg-[#facc15] disabled:opacity-40"
                   >
@@ -170,7 +213,7 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
                   />
                   <button
                     type="button"
-                    disabled={cargando || nombreSala.trim() === ""}
+                    disabled={cargando || nombreSala.trim() === "" || tuNombre.trim() === ""}
                     onClick={crear}
                     className="rounded-xl border border-white/15 px-5 py-3 font-semibold text-white/80 transition hover:border-white disabled:opacity-40"
                   >
