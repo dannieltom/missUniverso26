@@ -1,16 +1,18 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { ETAPA_CLAVES, TAMANOS_POR_DEFECTO, etapaInfo, type EtapaClave } from "@/lib/etapas";
 
 export const runtime = "nodejs";
 
 type Cuerpo = {
   anio: number;
-  corte: number;
-  accion: "verificar" | "agregar" | "quitar" | "limpiar" | "fijar_corte";
+  etapa: string;
+  accion: "verificar" | "agregar" | "quitar" | "limpiar" | "fijar_tamano";
   candidata_id?: string;
+  tamano?: number;
 };
 
-// Solo la cuenta de Google indicada en ADMIN_EMAIL puede cambiar el top oficial.
+// Solo la cuenta de Google indicada en ADMIN_EMAIL puede cambiar los tops oficiales.
 async function esAdministrador(req: Request): Promise<boolean> {
   const token = req.headers.get("authorization")?.replace(/^Bearer /, "");
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -44,27 +46,48 @@ export async function POST(req: Request) {
 
   // La clave de servicio salta las reglas de seguridad: solo se usa aquí, después de validar la cuenta.
   const db = createClient(url, servicio, { auth: { persistSession: false } });
-  const { anio, corte, accion } = cuerpo;
+  const { anio, accion } = cuerpo;
 
-  if (!Number.isInteger(anio) || !Number.isInteger(corte) || corte < 1) {
-    return NextResponse.json({ error: "Año o tamaño de corte inválido." }, { status: 400 });
+  if (!Number.isInteger(anio) || !ETAPA_CLAVES.includes(cuerpo.etapa as EtapaClave)) {
+    return NextResponse.json({ error: "Año o etapa inválidos." }, { status: 400 });
+  }
+  const etapa = cuerpo.etapa as EtapaClave;
+  const info = etapaInfo(etapa);
+  if (!info) return NextResponse.json({ error: "Etapa inválida." }, { status: 400 });
+
+  // Tamaño actual de la etapa (si no está fijado, el de por defecto).
+  async function tamanoActual(): Promise<number> {
+    const { data, error } = await db
+      .from("top_etapa")
+      .select("tamano")
+      .eq("anio", anio)
+      .eq("etapa", etapa)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data?.tamano ?? TAMANOS_POR_DEFECTO[etapa];
   }
 
-  // Filas actuales del corte, en orden.
-  async function filasActuales() {
+  // Candidatas oficiales de una etapa, en orden.
+  async function filasDe(clave: EtapaClave) {
     const { data, error } = await db
-      .from("top_oficial")
+      .from("top_etapa_oficial")
       .select("candidata_id, orden")
       .eq("anio", anio)
-      .eq("corte", corte)
+      .eq("etapa", clave)
       .order("orden", { ascending: true });
     if (error) throw new Error(error.message);
     return data ?? [];
   }
 
   try {
-    if (accion === "fijar_corte") {
-      const { error } = await db.from("top_oficial_config").upsert({ anio, corte }, { onConflict: "anio" });
+    if (accion === "fijar_tamano") {
+      const tamano = cuerpo.tamano;
+      if (!Number.isInteger(tamano) || (tamano ?? 0) < 1) {
+        return NextResponse.json({ error: "El tamaño debe ser un número mayor que 0." }, { status: 400 });
+      }
+      const { error } = await db
+        .from("top_etapa")
+        .upsert({ anio, etapa, tamano }, { onConflict: "anio,etapa" });
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
       return NextResponse.json({ ok: true });
     }
@@ -73,16 +96,27 @@ export async function POST(req: Request) {
       if (!cuerpo.candidata_id) {
         return NextResponse.json({ error: "Falta la candidata." }, { status: 400 });
       }
-      const filas = await filasActuales();
-      if (filas.length >= corte) {
-        return NextResponse.json({ error: `El top ${corte} ya está completo.` }, { status: 400 });
+      const tamano = await tamanoActual();
+      const filas = await filasDe(etapa);
+      if (filas.length >= tamano) {
+        return NextResponse.json({ error: `El top ${tamano} ya está completo.` }, { status: 400 });
       }
       if (filas.some((f) => f.candidata_id === cuerpo.candidata_id)) {
         return NextResponse.json({ error: "Esa candidata ya está en el top." }, { status: 400 });
       }
-      const { error } = await db.from("top_oficial").insert({
+      // Top 10 y top 5 solo pueden salir de la etapa anterior oficial.
+      if (info.anterior) {
+        const previas = await filasDe(info.anterior);
+        if (!previas.some((f) => f.candidata_id === cuerpo.candidata_id)) {
+          return NextResponse.json(
+            { error: "Esa candidata no está en el top oficial de la etapa anterior." },
+            { status: 400 },
+          );
+        }
+      }
+      const { error } = await db.from("top_etapa_oficial").insert({
         anio,
-        corte,
+        etapa,
         orden: filas.length + 1,
         candidata_id: cuerpo.candidata_id,
       });
@@ -95,22 +129,22 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Falta la candidata." }, { status: 400 });
       }
       const { error } = await db
-        .from("top_oficial")
+        .from("top_etapa_oficial")
         .delete()
         .eq("anio", anio)
-        .eq("corte", corte)
+        .eq("etapa", etapa)
         .eq("candidata_id", cuerpo.candidata_id);
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
       // Renumera el orden para que quede 1, 2, 3... sin huecos.
-      const restantes = await filasActuales();
+      const restantes = await filasDe(etapa);
       for (let i = 0; i < restantes.length; i++) {
         if (restantes[i].orden !== i + 1) {
           await db
-            .from("top_oficial")
+            .from("top_etapa_oficial")
             .update({ orden: i + 1 })
             .eq("anio", anio)
-            .eq("corte", corte)
+            .eq("etapa", etapa)
             .eq("candidata_id", restantes[i].candidata_id);
         }
       }
@@ -118,7 +152,7 @@ export async function POST(req: Request) {
     }
 
     if (accion === "limpiar") {
-      const { error } = await db.from("top_oficial").delete().eq("anio", anio).eq("corte", corte);
+      const { error } = await db.from("top_etapa_oficial").delete().eq("anio", anio).eq("etapa", etapa);
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
       return NextResponse.json({ ok: true });
     }

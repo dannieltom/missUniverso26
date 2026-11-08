@@ -1,5 +1,5 @@
 import { getCandidatas } from "@/lib/candidatas";
-import { TopOficialCompartido } from "@/components/TopOficialCompartido";
+import { RondaNocheFinal } from "@/components/RondaNocheFinal";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +11,7 @@ export default async function PaginaAdmin() {
     <main className="mx-auto max-w-4xl space-y-6 p-6">
       <h1 className="text-2xl font-black uppercase">Administrador</h1>
       {error && <p className="text-sm text-red-400">{error}</p>}
-      <TopOficialCompartido candidatas={candidatas} admin />
+      <RondaNocheFinal candidatas={candidatas} admin />
     </main>
   );
 }
