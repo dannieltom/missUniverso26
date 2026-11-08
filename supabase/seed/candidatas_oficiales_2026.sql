@@ -145,7 +145,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Estados Unidos', 'USA', 'America', 'Justus Anye Coleman Kelley', 'Miss USA 2026', '/fotos/usa.jpg'),
 ('Venezuela', 'Venezuela', 'America', 'Clara Vegas Goetz', 'Miss Universo Venezuela 2025', '/fotos/venezuela.jpg'),
 ('Zambia', 'Zambia', 'Africa', 'Mubanga Pamela Hatyoka', 'Miss Universe Zambia 2026', '/fotos/zambia.jpg'),
-('Zimbabue', 'Zimbabwe', 'Africa', 'Roseanna Hall', 'Miss Universe Zimbabwe 2026', null);
+('Zimbabue', 'Zimbabwe', 'Africa', 'Roseanna Hall', 'Miss Universe Zimbabwe 2026', '/fotos/zimbabwe.jpg');
 
 -- 1) Renombra las que ya existen (por nombre anterior o nombre nuevo) y actualiza región y foto.
 update candidatas c
