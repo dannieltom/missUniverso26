@@ -98,7 +98,7 @@ insert into oficial (pais_anterior, pais, region, nombre, descripcion, foto_url)
 ('Mayotte', 'Mayotte', 'Africa', 'Maëva Toumbou Dani', 'Miss Universe Mayotte 2026', '/fotos/mayotte.jpg'),
 ('México', 'Mexico', 'America', 'María Vargas', 'Miss Universe México 2026', '/fotos/mexico.jpg'),
 ('Moldavia', 'Moldova', 'Europa', 'Dorina Darii', 'Miss Universe Moldova 2026', '/fotos/moldova.jpg'),
-('Mongolia', 'Mongolia', 'Asia', 'Enkhdelgerekh Enkhbold', 'Miss Universe Mongolia 2026', '/fotos/mongolia.jpg'),
+('Mongolia', 'Mongolia', 'Asia', 'Namuunaa Otgonbaatar', 'Miss Universe Mongolia 2026', '/fotos/mongolia.jpg'),
 ('Montenegro', 'Montenegro', 'Europa', 'Maria Aleksandra Ivezaj', 'Miss Universe Montenegro 2026', '/fotos/montenegro.jpg'),
 ('Myanmar (Birmania)', 'Myanmar', 'Asia', 'May Grace Parry', 'Miss Universe Myanmar 2026', '/fotos/myanmar.jpg'),
 ('Namibia', 'Namibia', 'Africa', 'Charene Elizabeth Labuschagne', 'Miss Namibia 2026', '/fotos/namibia.jpg'),
