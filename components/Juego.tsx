@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Candidata } from "@/lib/tipos";
 import { RondaTipica } from "@/components/RondaTipica";
 import { RondaPreliminar } from "@/components/RondaPreliminar";
+import { RondaNocheFinal } from "@/components/RondaNocheFinal";
 import { GaleriaCandidatas } from "@/components/GaleriaCandidatas";
 
 type Ronda = {
@@ -30,7 +31,7 @@ const RONDAS: Ronda[] = [
     clave: "noche-final",
     etiqueta: "Noche final",
     descripcion: "Semifinalistas y Top 5 en la noche final.",
-    disponible: false,
+    disponible: true,
   },
 ];
 
@@ -131,6 +132,8 @@ export function Juego({ candidatas }: { candidatas: Candidata[] }) {
         {rondaActual.disponible ? (
           rondaActual.clave === "preliminar" ? (
             <RondaPreliminar candidatas={candidatas} />
+          ) : rondaActual.clave === "noche-final" ? (
+            <RondaNocheFinal candidatas={candidatas} />
           ) : (
             <RondaTipica candidatas={candidatas} />
           )
