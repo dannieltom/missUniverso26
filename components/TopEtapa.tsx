@@ -151,6 +151,8 @@ export function TopEtapa({
 }: Props) {
   const esInicial = clave === "inicial";
   const [miTop, setMiTop] = useState<string[]>([]);
+  // En la inicial: si ya calificaste la preliminar, tu top sale de ahí; si no, lo armas tú.
+  const [tienePreliminar, setTienePreliminar] = useState(false);
   // Texto del campo, tal como lo escribe el admin (puede quedar vacío mientras digita).
   const [tamanoPendiente, setTamanoPendiente] = useState(String(tamano));
   const tamanoNumero = Math.floor(Number(tamanoPendiente));
@@ -173,14 +175,17 @@ export function TopEtapa({
         .filter((x): x is { id: string; total: number } => x.total !== undefined)
         .sort((a, b) => b.total - a.total)
         .map((x) => x.id);
-      setMiTop(ordenados.slice(0, tamano));
       if (ordenados.length > 0) {
+        setTienePreliminar(true);
+        setMiTop(ordenados.slice(0, tamano));
         void guardarParticipacion(
           "inicial",
           ordenados.slice(0, tamano).map((id) => ({ candidata_id: id })),
         );
+        return;
       }
-      return;
+      // Sin preliminar calificada: usa el top que armaste tú en este navegador.
+      setTienePreliminar(false);
     }
     try {
       const guardado = localStorage.getItem(clavePick(clave));
@@ -200,7 +205,7 @@ export function TopEtapa({
 
   function guardarMiTop(nuevo: string[]) {
     setMiTop(nuevo);
-    if (!esInicial) localStorage.setItem(clavePick(clave), JSON.stringify(nuevo));
+    localStorage.setItem(clavePick(clave), JSON.stringify(nuevo));
     void guardarParticipacion(
       clave,
       nuevo.map((id) => ({ candidata_id: id })),
@@ -348,9 +353,12 @@ export function TopEtapa({
     ) : null;
 
   // ---------- Participantes (también las ve el admin, para armar su propio top) ----------
-  const pickearDisponible = !esInicial && !!anterior;
+  // Sin preliminar, la inicial deja armar el top libremente entre todas las candidatas.
+  const pickerLibre = esInicial && !tienePreliminar;
+  const pickearDisponible = pickerLibre || (!esInicial && !!anterior);
+  const listaElegible = pickerLibre ? candidatas : pool;
   // Puedes elegir de las candidatas que ya salieron en el top anterior, aunque no esté completo.
-  const poolBloqueado = pickearDisponible && pool.length === 0;
+  const poolBloqueado = !pickerLibre && pickearDisponible && pool.length === 0;
 
   return (
     <div className="space-y-6">
@@ -361,7 +369,10 @@ export function TopEtapa({
       {pickearDisponible && (
         <div className="mt-5 space-y-3 rounded-2xl border border-white/10 p-4">
           <p className="text-sm text-white/70">
-            Arma tu top {tamano} con candidatas del {anterior!.etiqueta} oficial. Marcadas: {picks.length} de {tamano}.
+            {pickerLibre
+              ? `Arma tu propio top ${tamano}, sin necesidad de calificar la preliminar.`
+              : `Arma tu top ${tamano} con candidatas del ${anterior!.etiqueta} oficial.`}{" "}
+            Marcadas: {picks.length} de {tamano}.
           </p>
           {poolBloqueado ? (
             <p className="text-sm text-white/50">
@@ -369,7 +380,7 @@ export function TopEtapa({
             </p>
           ) : (
             <>
-              {!anterior!.completo && (
+              {!pickerLibre && anterior && !anterior.completo && (
                 <p className="text-sm text-white/50">
                   Van {anterior!.cantidad} de {anterior!.tamano} en el {anterior!.etiqueta} oficial. Puedes elegir de las que ya salieron.
                 </p>
@@ -378,7 +389,7 @@ export function TopEtapa({
                 Toca las {tamano} que crees que entran. Llevas {picks.length} de {tamano}.
               </p>
               <ul className="grid gap-2 sm:grid-cols-2">
-                {pool.map((c) => {
+                {listaElegible.map((c) => {
                   const elegida = picks.includes(c.id);
                   const lleno = picks.length >= tamano && !elegida;
                   const bandera = urlBandera(c.pais);
@@ -453,9 +464,7 @@ export function TopEtapa({
 
         <div className="rounded-2xl border border-white/10 p-4">
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/70">Tu top {tamano}</p>
-          {esInicial && picks.length === 0 ? (
-            <p className="text-sm text-white/50">Termina de calificar baño y gala en la preliminar para armar tu top {tamano}.</p>
-          ) : picks.length === 0 ? (
+          {picks.length === 0 ? (
             <p className="text-sm text-white/50">Todavía no eliges candidatas.</p>
           ) : (
             <ol className="space-y-2">
