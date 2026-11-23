@@ -135,6 +135,16 @@ type Props = {
   enviarAdmin: (payload: Record<string, unknown>) => Promise<boolean>;
 };
 
+// Lee el top que la persona armó en este navegador para una etapa.
+function leerLista(clave: EtapaClave): string[] {
+  try {
+    const guardado = localStorage.getItem(clavePick(clave));
+    return guardado ? (JSON.parse(guardado) as string[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 // Una etapa completa: top oficial a un lado, tu top al otro, y abajo el resumen de aciertos.
 export function TopEtapa({
   clave,
@@ -151,8 +161,9 @@ export function TopEtapa({
 }: Props) {
   const esInicial = clave === "inicial";
   const [miTop, setMiTop] = useState<string[]>([]);
-  // En la inicial: si ya calificaste la preliminar, tu top sale de ahí; si no, lo armas tú.
-  const [tienePreliminar, setTienePreliminar] = useState(false);
+  // En la inicial: el top que sale de tus puntajes de la preliminar (vacío si aún no calificas).
+  const [topPreliminar, setTopPreliminar] = useState<string[]>([]);
+  const tienePreliminar = topPreliminar.length > 0;
   // Texto del campo, tal como lo escribe el admin (puede quedar vacío mientras digita).
   const [tamanoPendiente, setTamanoPendiente] = useState(String(tamano));
   const tamanoNumero = Math.floor(Number(tamanoPendiente));
@@ -175,31 +186,28 @@ export function TopEtapa({
         .filter((x): x is { id: string; total: number } => x.total !== undefined)
         .sort((a, b) => b.total - a.total)
         .map((x) => x.id);
-      if (ordenados.length > 0) {
-        setTienePreliminar(true);
-        setMiTop(ordenados.slice(0, tamano));
+      const prelim = ordenados.slice(0, tamano);
+      setTopPreliminar(prelim);
+      // Si armaste tu top a mano, ese es el que cuenta; si no, el de la preliminar.
+      const manual = leerLista(clave);
+      const elegido = manual.length > 0 ? manual : prelim;
+      setMiTop(elegido);
+      if (elegido.length > 0) {
         void guardarParticipacion(
           "inicial",
-          ordenados.slice(0, tamano).map((id) => ({ candidata_id: id })),
+          elegido.map((id) => ({ candidata_id: id })),
         );
-        return;
       }
-      // Sin preliminar calificada: usa el top que armaste tú en este navegador.
-      setTienePreliminar(false);
+      return;
     }
-    try {
-      const guardado = localStorage.getItem(clavePick(clave));
-      const lista = guardado ? (JSON.parse(guardado) as string[]) : [];
-      setMiTop(lista);
-      // Sube lo que tengas en este navegador a la base de datos (el ranking lee de ahí).
-      if (lista.length > 0) {
-        void guardarParticipacion(
-          clave,
-          lista.map((id) => ({ candidata_id: id })),
-        );
-      }
-    } catch {
-      setMiTop([]);
+    // Tu top de la etapa (armado a mano). Sube lo que tengas en este navegador a la base de datos.
+    const lista = leerLista(clave);
+    setMiTop(lista);
+    if (lista.length > 0) {
+      void guardarParticipacion(
+        clave,
+        lista.map((id) => ({ candidata_id: id })),
+      );
     }
   }, [esInicial, clave, tamano, candidatas]);
 
@@ -353,8 +361,8 @@ export function TopEtapa({
     ) : null;
 
   // ---------- Participantes (también las ve el admin, para armar su propio top) ----------
-  // Sin preliminar, la inicial deja armar el top libremente entre todas las candidatas.
-  const pickerLibre = esInicial && !tienePreliminar;
+  // En la inicial puedes digitar tu top directamente entre todas las candidatas, además de usar la preliminar.
+  const pickerLibre = esInicial;
   const pickearDisponible = pickerLibre || (!esInicial && !!anterior);
   const listaElegible = pickerLibre ? candidatas : pool;
   // Puedes elegir de las candidatas que ya salieron en el top anterior, aunque no esté completo.
@@ -370,7 +378,7 @@ export function TopEtapa({
         <div className="mt-5 space-y-3 rounded-2xl border border-white/10 p-4">
           <p className="text-sm text-white/70">
             {pickerLibre
-              ? `Arma tu propio top ${tamano}, sin necesidad de calificar la preliminar.`
+              ? `Digita tu top ${tamano} con las candidatas que crees que entran.`
               : `Arma tu top ${tamano} con candidatas del ${anterior!.etiqueta} oficial.`}{" "}
             Marcadas: {picks.length} de {tamano}.
           </p>
@@ -428,6 +436,15 @@ export function TopEtapa({
                 })}
               </ul>
             </>
+          )}
+          {pickerLibre && tienePreliminar && (
+            <button
+              type="button"
+              onClick={() => guardarMiTop(topPreliminar)}
+              className="ml-2 rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-white/70 transition hover:border-white"
+            >
+              Usar el top de mi preliminar
+            </button>
           )}
           {picks.length > 0 && (
             <button
