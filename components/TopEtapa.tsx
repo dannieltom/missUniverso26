@@ -57,67 +57,6 @@ function FilaCandidata({
   );
 }
 
-// Buscador: escribe "col" y aparecen los países que coinciden.
-function Buscador({
-  pool,
-  excluir,
-  deshabilitado,
-  onElegir,
-}: {
-  pool: Candidata[];
-  excluir: Set<string>;
-  deshabilitado: boolean;
-  onElegir: (id: string) => void;
-}) {
-  const [texto, setTexto] = useState("");
-  const coincidencias = useMemo(() => {
-    const q = sinAcentos(texto.trim());
-    if (!q) return [];
-    return pool
-      .filter((c) => !excluir.has(c.id) && (sinAcentos(c.pais).includes(q) || sinAcentos(c.nombre).includes(q)))
-      .slice(0, 8);
-  }, [texto, pool, excluir]);
-
-  return (
-    <div className="space-y-2">
-      <input
-        type="text"
-        value={texto}
-        disabled={deshabilitado}
-        onChange={(e) => setTexto(e.target.value)}
-        placeholder={deshabilitado ? "Ya está completo" : "Escribe un país, ej. col"}
-        className="w-full rounded-xl border border-white/15 bg-black/60 px-4 py-2 text-white outline-none focus:border-[#facc15] disabled:opacity-40"
-      />
-      {coincidencias.length > 0 && (
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {coincidencias.map((c) => {
-            const bandera = urlBandera(c.pais);
-            return (
-              <li key={c.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onElegir(c.id);
-                    setTexto("");
-                  }}
-                  className="flex w-full items-center gap-3 rounded-xl border border-white/10 px-3 py-2 text-left text-sm transition hover:border-[#facc15]"
-                >
-                  {bandera && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={bandera} alt="" className="h-5 w-7 flex-none rounded-sm object-cover" />
-                  )}
-                  <span className="font-semibold">{c.pais}</span>
-                  <span className="truncate text-white/50">{c.nombre}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 export type AnteriorInfo = { etiqueta: string; tamano: number; cantidad: number; completo: boolean };
 
 type Props = {
@@ -255,7 +194,7 @@ export function TopEtapa({
             </button>
           </div>
 
-          {anterior ? (
+          {esInicial || anterior ? (
             <div className="space-y-3">
               <p className="text-sm text-white/70">
                 Toca las candidatas que pasan al top oficial. Marcadas: {oficial.length} de {tamano}.
@@ -302,17 +241,7 @@ export function TopEtapa({
                 })}
               </ul>
             </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-white/70">Agregar al top oficial</p>
-              <Buscador
-                pool={pool}
-                excluir={enOficial}
-                deshabilitado={completo || trabajando}
-                onElegir={(id) => enviarAdmin({ accion: "agregar", candidata_id: id })}
-              />
-            </div>
-          )}
+          ) : null}
 
           {oficial.length === 0 ? (
             <p className="text-sm text-white/50">Todavía no hay candidatas marcadas.</p>
