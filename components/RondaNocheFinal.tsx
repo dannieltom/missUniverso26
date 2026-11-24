@@ -11,7 +11,7 @@ import { RankingSala } from "@/components/RankingSala";
 
 type Vista = EtapaClave | "final";
 const VISTAS: Vista[] = [...ETAPA_CLAVES, "final"];
-const VACIO_OFICIALES: Record<EtapaClave, string[]> = { inicial: [], top10: [], top5: [] };
+const VACIO_OFICIALES: Record<EtapaClave, string[]> = { inicial: [], top10: [], top5: [], top3: [] };
 
 // admin = true: página /admin, donde el administrador entra con su cuenta de Google.
 export function RondaNocheFinal({
@@ -62,7 +62,7 @@ export function RondaNocheFinal({
       }
       setTamanos(nuevosTamanos);
 
-      const nuevosOficiales: Record<EtapaClave, string[]> = { inicial: [], top10: [], top5: [] };
+      const nuevosOficiales: Record<EtapaClave, string[]> = { inicial: [], top10: [], top5: [], top3: [] };
       const nuevaFinal: string[] = [];
       for (const fila of (filas.data ?? []) as { etapa: string; candidata_id: string }[]) {
         if (fila.etapa === "final") {
@@ -193,7 +193,7 @@ export function RondaNocheFinal({
               vista === v ? "border-[#facc15] bg-[#facc15] text-black" : "border-white/15 text-white/70 hover:border-white"
             }`}
           >
-            {v === "final" ? "Preguntas" : `Top ${tamanos[v as EtapaClave]}`}
+            {v === "final" ? "Final" : `Top ${tamanos[v as EtapaClave]}`}
           </button>
         ))}
       </nav>
@@ -209,7 +209,7 @@ export function RondaNocheFinal({
           {soyAdmin && (
             <RondaFinal
               porId={porId}
-              top5={oficiales.top5}
+              top5={oficiales.top3}
               oficialGuardado={oficialFinal}
               onGuardarOficial={(ids) => {
                 void enviarAdmin("final", { accion: "fijar_orden", ids });
@@ -218,7 +218,7 @@ export function RondaNocheFinal({
               mensaje={mensaje}
             />
           )}
-          <RondaFinal porId={porId} top5={oficiales.top5} oficialFinal={oficialFinal} />
+          <RondaFinal porId={porId} top5={oficiales.top3} oficialFinal={oficialFinal} />
         </div>
       ) : (
         <TopEtapa
@@ -243,18 +243,18 @@ export function RondaNocheFinal({
         {vista === "final" ? (
           <button
             type="button"
-            onClick={() => setVista("top5")}
+            onClick={() => setVista("top3")}
             className="rounded-full border border-white/15 px-5 py-2 text-sm font-semibold text-white/80 transition hover:border-white"
           >
-            Volver al top 5
+            Volver al top 3
           </button>
-        ) : vista === "top5" ? (
+        ) : vista === "top3" ? (
           <button
             type="button"
             onClick={() => setVista("final")}
             className="rounded-full bg-white px-6 py-2 font-bold text-black transition hover:bg-[#facc15]"
           >
-            Ir a ronda de preguntas
+            Ir a la final
           </button>
         ) : siguiente ? (
           <button

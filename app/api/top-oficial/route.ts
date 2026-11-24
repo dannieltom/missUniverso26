@@ -10,7 +10,7 @@ type Cuerpo = {
   accion: "verificar" | "agregar" | "quitar" | "limpiar" | "fijar_tamano" | "fijar_orden";
   candidata_id?: string;
   tamano?: number;
-  /** Orden de la ronda final, de 1.º a 5.º. */
+  /** Orden de la ronda final, de 1.º a 3.º. */
   ids?: string[];
 };
 
@@ -172,13 +172,13 @@ export async function POST(req: Request) {
 
     if (accion === "fijar_orden") {
       const ids = cuerpo.ids ?? [];
-      if (ids.length > 5 || new Set(ids).size !== ids.length) {
-        return NextResponse.json({ error: "El orden debe tener hasta 5 candidatas, sin repetir." }, { status: 400 });
+      if (ids.length > 3 || new Set(ids).size !== ids.length) {
+        return NextResponse.json({ error: "El orden debe tener hasta 3 candidatas, sin repetir." }, { status: 400 });
       }
-      // La ronda final solo puede tener candidatas del top 5 oficial.
-      const top5 = await filasDe("top5");
-      if (!ids.every((id) => top5.some((f) => f.candidata_id === id))) {
-        return NextResponse.json({ error: "Todas deben estar en el top 5 oficial." }, { status: 400 });
+      // La ronda final solo puede tener candidatas del top 3 oficial.
+      const top3 = await filasDe("top3");
+      if (!ids.every((id) => top3.some((f) => f.candidata_id === id))) {
+        return NextResponse.json({ error: "Todas deben estar en el top 3 oficial." }, { status: 400 });
       }
       const { error: errorBorrar } = await db
         .from("top_etapa_oficial")

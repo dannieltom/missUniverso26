@@ -116,15 +116,15 @@ export function RondaFinal({
 
   return (
     <div className="rounded-3xl border border-white/10 bg-black/50 p-6 backdrop-blur md:p-8">
-      <h4 className="text-xl font-black uppercase">{esOficial ? "Orden oficial de la final" : "Ronda de preguntas"}</h4>
+      <h4 className="text-xl font-black uppercase">{esOficial ? "Orden oficial de la final" : "Final"}</h4>
       <p className="mt-2 text-sm text-white/60">
         {esOficial
-          ? "Arrastra a las 5 en el orden oficial y guárdalo. Se ve en vivo para todos."
+          ? "Arrastra a las 3 en el orden oficial y guárdalo. Se ve en vivo para todos."
           : "Mira la respuesta en la TV y arrastra a cada candidata hasta el lugar que crees que queda. Usa el agarre (≡) de la izquierda."}
       </p>
 
       {top5.length === 0 ? (
-        <p className="mt-6 text-sm text-white/50">Aún no se anuncia el top 5 oficial.</p>
+        <p className="mt-6 text-sm text-white/50">Aún no se anuncia el top 3 oficial.</p>
       ) : (
         <>
           <ol className="mt-6 space-y-3">

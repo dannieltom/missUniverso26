@@ -5,7 +5,7 @@ export const CLAVE_BANIO = "mu26-r2-banio";
 export const CLAVE_GALA = "mu26-r2-gala";
 export const CLAVE_FINAL = `mu26-final-${ANIO}`;
 
-export type EtapaClave = "inicial" | "top10" | "top5";
+export type EtapaClave = "inicial" | "top10" | "top5" | "top3";
 
 export type EtapaInfo = {
   clave: EtapaClave;
@@ -17,9 +17,10 @@ export type EtapaInfo = {
 };
 
 export const ETAPAS: EtapaInfo[] = [
-  { clave: "inicial", anterior: null, siguiente: "top10", tamanoPorDefecto: 20 },
+  { clave: "inicial", anterior: null, siguiente: "top10", tamanoPorDefecto: 30 },
   { clave: "top10", anterior: "inicial", siguiente: "top5", tamanoPorDefecto: 10 },
-  { clave: "top5", anterior: "top10", siguiente: null, tamanoPorDefecto: 5 },
+  { clave: "top5", anterior: "top10", siguiente: "top3", tamanoPorDefecto: 5 },
+  { clave: "top3", anterior: "top5", siguiente: null, tamanoPorDefecto: 3 },
 ];
 
 export const ETAPA_CLAVES: EtapaClave[] = ETAPAS.map((e) => e.clave);
@@ -29,9 +30,10 @@ export function etapaInfo(clave: string): EtapaInfo | null {
 }
 
 export const TAMANOS_POR_DEFECTO: Record<EtapaClave, number> = {
-  inicial: 20,
+  inicial: 30,
   top10: 10,
   top5: 5,
+  top3: 3,
 };
 
 /** Clave de localStorage para tu top de una etapa (no aplica a la inicial). */

@@ -13,6 +13,8 @@ type Fila = {
   puntos_top10: number;
   aciertos_top5: number;
   puntos_top5: number;
+  aciertos_top3: number;
+  puntos_top3: number;
   aciertos_final: number;
   puntos_final: number;
   total: number;
@@ -54,7 +56,8 @@ export function RankingSala({ salaId }: { salaId: string }) {
       <h4 className="text-xl font-black uppercase">Ranking de la sala</h4>
       <p className="mt-2 text-sm text-white/60">
         Cada acierto vale: Top inicial {PUNTOS_POR_ETAPA.inicial} pts · Top 10 {PUNTOS_POR_ETAPA.top10} pts · Top 5{" "}
-        {PUNTOS_POR_ETAPA.top5} pts · Ronda final de {PUNTOS_FINAL_POR_LUGAR[5]} a {PUNTOS_FINAL_POR_LUGAR[1]} pts según el lugar.
+        {PUNTOS_POR_ETAPA.top5} pts · Top 3 {PUNTOS_POR_ETAPA.top3} pts · Final de {PUNTOS_FINAL_POR_LUGAR[3]} a{" "}
+        {PUNTOS_FINAL_POR_LUGAR[1]} pts según el lugar.
       </p>
 
       {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
@@ -74,7 +77,8 @@ export function RankingSala({ salaId }: { salaId: string }) {
               </div>
               <p className="mt-1 text-xs text-white/50">
                 Inicial {f.aciertos_inicial} ac. ({f.puntos_inicial} pts) · Top 10 {f.aciertos_top10} ac. ({f.puntos_top10}) ·
-                Top 5 {f.aciertos_top5} ac. ({f.puntos_top5}) · Final {f.aciertos_final} ac. ({f.puntos_final})
+                Top 5 {f.aciertos_top5} ac. ({f.puntos_top5}) · Top 3 {f.aciertos_top3} ac. ({f.puntos_top3}) ·
+                Final {f.aciertos_final} ac. ({f.puntos_final})
               </p>
             </li>
           ))}
